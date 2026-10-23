@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10365d">
+  <meta name="description" content="FST Field Engineer workspace">
+  <title>FST | Field Engineer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <style>
+    :root {
+      --navy:#10365d; --blue:#1b578b; --blue2:#2874aa; --red:#d83d46;
+      --ink:#173149; --muted:#718395; --muted2:#91a0ad; --line:#e2e9ef;
+      --canvas:#f3f6f9; --white:#fff; --green:#18795d; --greenbg:#eaf7f1;
+      --amber:#966620; --amberbg:#fff7e8; --rose:#9d3e45; --rosebg:#fff1f1;
+      --shadow:0 8px 26px rgba(20,49,73,.08); --radius:15px;
+      --font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{min-height:100%;background:var(--canvas);scroll-behavior:smooth}
+    body{margin:0;min-width:320px;min-height:100vh;color:var(--ink);background:var(--canvas);font-family:var(--font);-webkit-font-smoothing:antialiased}
+    input,select,textarea,button{font:inherit}
+    button{cursor:pointer}
+    button:disabled{cursor:not-allowed;opacity:.58}
+    :focus-visible{outline:3px solid rgba(40,116,170,.3);outline-offset:2px}
+    .hidden{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .icon{width:19px;height:19px;display:inline-block;flex:0 0 auto}
+    :root{--arrow-logo:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAACACAYAAAC2nx8tAAAS9UlEQVR42u1dfXScZZX/3fu878xkMmkLtfQrGdLvNi2w7aSioHZZzgqedRd0SRTdPeoCLi4oUqwgK5YWYREWRHdR96DrKrqrSXFX8AtXrbiIHPLRWkpK2yRtk7SVZRHbZL7f5979Y95pM2naJukkmQk8J+fk5CTz5p3fe3/343fv8wzw+hrZUoAVoNeROMlqAszrVuJbyN6atSu7orGrFODXuvWw/538n2oc0H90R+u3dFVf8EYChAB9LQLEANCMBgIAUpshQKaxeRfIfXJ/tP6BnbPq5uQBakKDea1ZTI5SRApAB8SzhmhGiHh9OBT+TXdt7G93zqqLNKLZDqbeawkYUYAIZCxU4ioSYKqtUPOVqlDlDzrmnf/O3O+hCpAOef3UBcayDPqRCOCUqiZUJMS8broT3NJTE/vGruiaGAFKgExV/1MAjCErAIEGvU/OvWkeUM9mocFK4/x1JfhH3dWxu7fPfuOCqeqgCy3GEyFVHfr2CECOXtA/iBUmPqfKcW6fGZQn9sxb83cd85bPnGoO2in0MZ4CBtDh/5hy9KKUimYUWsG8ssLlh0UjV3VFY19aOAvfp7bmrO97lE56pTKxmAb/hxAF7UjYwL7jTYhIVgVBMpc4So92v0zf2nvu2jdPBXoVUCmb87gjeso5euVeP6BWlSlUSdzoQJ7orF7z4L7ZF9bmAdqKdU7ZA6NjuwhZVU2otQY8M2zMzTbg/WJPTf1Nu2ZeVHUJnvI2lpn1DMljrCqpYgwAUe7LeKqSUpUg84Iw00PBysyPuqJr3rnpOL1oYxnkPzxcRVmEa3JGVTOqEmbzFkf5e13RNd/ZW7N2JQG6CZAmNJhStqACYFwiJVBRIgn5+U9cPCsEN0zue1jlmQM1azftmrl6XiOabd5Bl4XFFDu+EsgIoEm11mGeFjb8maoK89P90di1O2fVRQiQvMSBErKgQmCyAAFa7Nvzrcd4UD0qnjWGVwbIPDI9GP6vzvl/9I6tWOf45QVKxYJ82eF4VBrPRX6BmlBrUyoacMylQXa+V1sd/+qumrX1pVR/FdZKAU8AEdLxBoiMAugXK5YpFDHmAxGmxzur6z+7O1q/sBQSxMI8JhvI8WgCboUAYoCtKvrVswSdW2X474NK3++Kxm7cc/Ybpx2vvyZef+bCwimrOsH1Te4ZkEnrMf1nlUv0RTciT+ytjV2hADcCtgmY0PBeCAyFhEDi3/BEA8QAOKGiVoEQ8dtc4ebumvpv7Z5//oWNgJ1Ieg0pCTKAqE6y0yMFKKEigLphNlc7xvlR17lr7++IxuZOlLzBQ2UHYS0JqYAAtvn8B+bsMOgTYeCp/dWxa3uqqysa0Wx9eZXGHRgXQSUtkDcnG5xj+U9CRRwySwKGH1HM+eGeubE/9cP7uOjPJ3QJtAS1JV8g47SKpFQlZMwlYZcePxCNfe2FmgtWjkf+MwSYrCpBqUR1N/LfeE5/RijMzt9MI/dnPdHYHYP9TzEA8hW8Os1bDKlKKasm+exZAD0inhDxnBCbzdNAP+mqjl3TelZsejEcNOULOALkxbmx5a6DrQHmORlVoTLQTcT3M5XEnIWqqPw0S/hi+4GFTzai2W4E+M4x6M/+G9+Y+xYAiiU7TGR4J4DjKpJVpRA5l7lKzbHq7q/uqlldnxfIRqsgFlhM17zzl6rjbg0SzysXiznRglRcYq4gQkr1kGfxDQ3IVxZ1t/UAwFascy7BU94o9ZggoCQo48Ug9lS1X0QYNC9k6FPw8JM9NbHrX142cv35hKgEgkWZLzrWXhZNqWiIzIoQ0ZePJjKP754f+7PB9DqZ/lzQ1nDZSFZVQVOj0+q3l5FSUQIQZv7jpMpFXTVrHnNg7j63t+WFnCtpMORPcgxrMWkApCqYYov80iGpYokRCLNztVX5n33zY5t2LLhw9lBQTgAmCMBXwwVl3F49ubwBI4AmVMQwn1XhmM/MtPLk/urYNfvWrQv5gYhOAIbUTbFSopKYcyhPTeshgD2oJFWzVca5QEAfxP7EjOEsRgGgpu/ZQ6q49Yjn/dwBcQUZBqAyxaxHAHVB7ADu/9rsN1OsjbUHWl7KD0UNsrDC1XVWbLqEudE18rEgmVUWirSqaE6OLGvPrIANgY2FJjLQ+/6Q1fvrD7clTkK9ghdyvtfTtTAWpQx92GF8KMRmXlIFnoolkClXUCqZTdLKS1mlW5b2tXw771eGlgx0kgsQcn8sANBZs7o+QHyjQ3yVS1zZL1akjKxH/Vqpig0nrG1Pevqx5Yfbfp13tMPVUXSaCx57oa5b53R1Drw94NAtAfCfWABpFeujzSUMijDAlWyQUm3uT5sNK3/3mwODmXGKKHbaix+7yLOLF0+bm55+tSo2hB2zKKWKbInSSwFxiZih6ln93A47966/OPyDxOlAGTEww9Frz+LzqoPZwE2sdG2AzYwBsfnSviSsRwCpJGa1+mpc7a1LDrY/MvQhFwWYkwHUVV2/1hDdxoR3GwJSfuY8WfTy+2ISIWM8ld3xbPajSw9v/+9T+ZMRVNcjSpDy+iopwIv6Wlue661tFFBDSvX5IBEHiRiA1UlyshFik1TvV5msXOmDYmiUYtWYn2oeoCY0mEY029qe57ZMH+C3ZFTuyKgeChMbBwTJabA6Ef7EIaIAmONiv53J2KsWHG57MVcgjl4xoCLe2DHu7q25YKWBWU/g91QwVyZVNFdejI+DVsAGc2NuaQu9lzly74IDT6U2ArxpBP5kXIHJ+59mNHB+M8be6rWXG9j1xvClQTAnVcQWMf/xzVDCxJwUedkjunlpz8mTtkkDZjjr2TlrXcSt6H9fAHRDiM35VnPlhe/Ax/z/BVAGECFDA+ptT8PesKJn+zOjdbITCsyw5cXcWBQBXBtQ/mCIuSZxBuWFAGoAChMjJd6WJHmfXN6zY99IQ/GkAzNceN8fja0R5RsCTO8JEFf2i6c6SG07/fVUAsTMgJdW+cdEMnn3qpc7BoZT4UoamPwa3N9RgHbPr788yLglxHypEpAQEToNvSSXn7Co/l8c3u1LekaXtJUkMIMtKM//rbPqIosqKt9LwCcCxMtSEFgVDyBnGCdrq9iYrNqOVBY3LTrU+rNi+ZOSAGa46HWgZvU8Ad3kwHw4aGhGv4gO0mrzSRsnYX9xNC03nve7bbvGe4fLpMoGJ9Rf8897k+HAJ12idzER0qpwABgQEmIf9cTcXHeo5ZXxoE7RMt8iPZVj5UUTYJYefP7Zhb2RxizsVWnV510iWNVUUmXz0dl0zUSBUoLayfHpBMVG7qyJ/XNndezTw/1+Ah5aSeknx8uKc1e/2bXmTjBmpFQeWNb751sIm2Sids9RqYGiAHVGYzcEydxZCZ7pQZEW64niWxn27l/as71jvEJ0SQEzOOR2RGNzg4pNAeLrQEBGxeYcIZkIG6RVOtNWP3842f/oW17Z3T+e4XpSne/G3FMHAbq7Zs1bK5Ueq2JznQfVtKoSyOSnp46KFQYtDjA/XB2Z9u0Xo7GL8xrLeIy20mRTZyPAH4iuudaANweZZydErC8sDau5EECVbCgl9mVP9ctnDeDBs19tOzLWyalSS/CYAGmdG3vDTJc+a0DXMsGkVS2dZt+A+sJXkIhZgbTos57I3UsPtf9g0LUVpVxdn8qf7J0bW2Mc/WKY3ItTsPByMsKI7ycvO4SIKSU2BcHXXZh7ag4+1zc0cSxpH+P7EyVAu6L1f2Uc/DjMzsUJWGtHCQqOV+OUVBEmClU45iOesb/oOjf2vjt9UPRMpzYnijo7Z9VFAsHQJpd5vSFCdgTUGeH1FYAGidlTgaj+O2xm88JDz+8ea2inCaAOESC751y4IuB6/1RpnEvjfou32Duj/NFWTCOmuEifEO5q7Un8WyM6MqMN7TSeoORvonP+6ncHmB8IGlMbF/H8qDNesioI6gXIOAzAU/3+QFY21x1uax+N9YzHzZEPiuyauawqHIrcYohvJYNQqkjUGSFAAoCmsUMZ8V7yVL5w8EjqXy462vH7vM/bdKa967FQp7v2vGXGBu8NMV+ZUkUWqpMxHSFQCZFhAyBp5dcA3bWwr+VJAGhCg2lAs4x62mGs1OmuiV3hgO4JGVM3UAIjI35PC1VsOCW2P6v69SxlH1res2Pf0HsvKjBNgGkE7DPVb6o4hzMbQnDWO0TT42oFftpfAjWZKqAuEYfASKq3Mwu5Lx1Jf3dVR0emqBaTo04DE5rtzurVi8PE94aY/9IDkFFRLsGB4XxoDxNzRsTLAt9NWzygMxIvrOzoyJ5yBm+0WWx39ZrLjKEHQ2Tq4iIqGHk7ZBIhsgDROcbll2z2eQO+orbnuX15WvEYQTEEKBrAe6KxWw3zFgembkCkLAYYc7QiDhPzK573WwdYPxiUMVmMD4rdcc6q2dNCwYdcMu/NqsKiPHarKCAGxAEQ0mKbkoyP1/W0HR7qgHmU1CEC7ItzYxdPD4Z+EiLz3pSKWqiWCyjBXBczkVb9VMubF74vB0qDGRqVRnR2VJNvJQCwryZ2vcN0twM+O65SNrvgGEAlMafE7s6q3rSkr/1J9Lb4xe2JrV0aCSiNgH1xaewNoZTe5ZC5XgGkVYXLwkpUXDAzAE/ke8S04dye1u6tgHNJ7mHrqDLfwVFn9/zYhZWG7guS87Z+9fJKGpc4baCARHJh+WgWet/CquT91NGRGckAAJ3KwUJBe2pXfygkfHcFO3OOqKf+gZNUDtSJkKG0yM4M9PZFva1PnCzLHREweVC2zz7/nOkB59OGzQ0M4pRKmVAHEiBiA4JnpTkN5/Ylfc92jrYfNeyT3x+NrRGhhyodfmtSyikUq4TJsMD2Z4Tu3ZPJfOGyl3bExyxUHT+jdyPvq338/WzpvhC7cxJqRUuk1jldwpabiDCcEemIU+aTy3p++8PRUOdkwDABcqDmonlC6Z9WklnZr+LRCMP5ZPsTA0IFEaXF/meK6BPLelq7z7SVW0AP4XjAChx/eLAc9lzbEDExNHvUene+EDxydR4UOsMe0xCLCIHIy4+7S4lTR8LEJil2XxZy09K+bU/Qceqc8b0XWkUKgIJLORgLoA6IQsQmIfbHnsrbl/Zue6IptxGUitWJLLCY/qDlsJQmhfLDzhW5Fkk6qfJ5V93NC/ueTfrUKepG+gJgpgPIcukdH6O5hE0r2HDSk26P5FNLetubgGONvKLTvgCYtGpOS6HSoo4LogCB0tb7cVrltuV923YMKlnGxRcWbkhPAaSlAYtf69gKYgIhOaD2c6DM+5cf3LZDB42PjNf/L7CYbMAy5fZal0TUiTCbtEhnSnDHsr7274wndU4TrgGd5EQ3T50gsekX+2RGdMOKvrbnx5s6pwSGVEhpMmtF9SqIHVWkB6w8mE0G/mHFK8/0T8YIayEwgQBBJmWMHgTYMDlOSmyfJXx8cV/rY4PLlYm+p4IzqjKqhAl2vr52opXEJiHez+Ogyxf1tD6mg3rgk2G7hVEpA7/umrhaJwgiJUJcvQe9uHn3yt6WF4pR6xSFSs3oIADIBBxyxU7EHqZ8N9Ak1f5OBLct7m3/xmRS5zTON52bIB1Ho1FADBEHABoQ79dW5eblfdtbJjrqjIpKWdWcXdO4AJLb7UrEpJpNiPelrDVX+KBMOnVOaTFBdYmIil4r+VFHwswmYeWwR94dS3q3/2v+2OtiF4DjkOBloOTSGFvaJ4s64hJxiIjj1vtlGmbDip7trfksthGlebxc4RlV0KIODGpOYWNWtUmRz2c8aljR29KaPxx9UwmLYYW1kjrkCBEMzojt+ahTxcakrBxOi9625GDbN4HceFdjEXe7TgwwcClIyubMrEQIRBEizoj9pbVYv+RQ27bjUae5LE5mLKBSQNPEJMdaKqMHRa1LxAaguOjDaUevXHCodVv+2Opy+uiyIV42cCYqla0gYyzk9xmR6xb0tty4qLvtiGIj5w8eRhmtwgTPTRNJYFThOt/gryA2KbVtRuxHFvRtbzmexW4qy42dhVEp45IQeKSJrwDiH7SHpOd9/dWMfUe0b3tLfnNDOe92LbAYD0pB8Glt3v+9RthwynqvWNXPLDrY/iUgd5AwodlDmS8HOP5xiK7rO109NXUYxGEiSoh9TlU2LOrb9qvjUeepsgdlGOd76lAkgAT949Pinv3q77X/XQtzoBgq8w/MPC0wpygAZRoZhuhLnshHWw8uvD7Wu/tQ0xjPgCorHwNVItKCDkp+g2aEmZNin0tCb1ne1/400O7XOs1TDpQTZQfkUMhTSqESAHGQmFJWHolj4MrlvW1P5z+IbtMUPmOBT5HFSgUZJuDVhJUbv9bben1dz4uHfZlgyp0QfeoETw0BrALRCBuTENmeUP3oqr62pxWgO/0BaLwGVuEncrEREnXDxBT3vEePOu5lq3rbnh6UsCleI2uIUOWFBBSPq71nUV/7/b7zNTRFHexIFgHA/uj5Czqjay/NV9dT6aPgi7IUG/l1FE5M5l4H5fV18vX/RHWXBnJTbcwAAAAASUVORK5CYII=")}
+    .brand-mark{width:42px;height:42px;display:block;flex:0 0 auto;border-radius:0;background-color:transparent;background-image:var(--arrow-logo);background-position:center;background-repeat:no-repeat;background-size:contain;box-shadow:none}
+    
+    .brand-copy b{display:block;color:inherit;font-size:17px;line-height:1;font-weight:850;letter-spacing:.09em}
+    .brand-copy small{display:block;margin-top:4px;color:inherit;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.72}
+    .app-brand{display:flex;align-items:center;gap:10px}
+
+    /* Sign in */
+    .login-screen{min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 5% 8%,#e8f1f8 0,transparent 28%),var(--canvas)}
+    .login-card{width:min(100%,420px);overflow:hidden;border:1px solid #e1e8ee;border-radius:22px;background:#fff;box-shadow:0 24px 75px rgba(13,44,72,.13)}
+    .login-top{padding:28px 28px 25px;color:#fff;background:linear-gradient(140deg,#0d2c4b,#17517d)}
+    .login-top .app-brand{margin-bottom:28px}
+    .login-top h1{margin:0;font-size:27px;letter-spacing:-.04em}
+    .login-top p{margin:8px 0 0;color:#d4e1eb;font-size:12px;line-height:1.6}
+    .login-body{padding:25px 28px 26px}
+    .login-body .field{margin-bottom:16px}
+    .field-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;color:#41596d;font-size:11px;font-weight:760}
+    .required{color:var(--red)}
+    .control,.select-control,.textarea-control{width:100%;min-height:45px;border:1px solid #dbe3e9;border-radius:10px;padding:0 12px;color:var(--ink);background:#fff;font-size:12px;transition:border .15s,box-shadow .15s}
+    .control::placeholder,.textarea-control::placeholder{color:#a0acb7}
+    .control:focus,.select-control:focus,.textarea-control:focus{outline:0;border-color:var(--blue2);box-shadow:0 0 0 3px rgba(40,116,170,.11)}
+    .control.invalid,.select-control.invalid,.textarea-control.invalid{border-color:#c9555d;box-shadow:0 0 0 2px rgba(201,85,93,.1)}
+    .select-control{appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2368798a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+    .textarea-control{min-height:92px;padding:11px 12px;resize:vertical;line-height:1.5}
+    .password-wrap{position:relative}.password-wrap .control{padding-right:48px}
+    .show-pass{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;border-radius:8px;color:#718395;background:transparent;display:grid;place-items:center}
+    .show-pass:hover{background:#f2f6f8;color:var(--navy)}
+    .primary,.secondary,.danger,.quiet{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:0 14px;font-size:11px;font-weight:780;transition:background .15s,border .15s,transform .15s}
+    .primary{border:1px solid var(--navy);color:#fff;background:var(--navy);box-shadow:0 5px 14px rgba(16,54,93,.13)}
+    .primary:hover:not(:disabled){transform:translateY(-1px);background:#184b77}
+    .secondary{border:1px solid #dce5eb;color:#38536a;background:#fff}
+    .secondary:hover:not(:disabled){background:#f8fafb;border-color:#b9c9d5}
+    .danger{border:1px solid #edc7c9;color:#a03c44;background:#fff}
+    .danger:hover:not(:disabled){background:#fff4f4}
+    .quiet{border:0;color:#5e7689;background:transparent;padding:0 8px}
+    .quiet:hover:not(:disabled){color:var(--navy);background:#eff4f7}
+    .wide{width:100%;min-height:48px}
+    .demo-note{margin-top:15px;padding:11px 12px;border:1px solid #f0d6b5;border-radius:9px;color:#7f5c2f;background:#fffbf5;font-size:10px;line-height:1.55}
+    .login-hint{margin:17px 0 0;color:#93a0ab;text-align:center;font-size:9px;line-height:1.5}
+    .error-alert{display:none;margin:0 0 14px;padding:10px 12px;border:1px solid #efc7ca;border-radius:9px;color:#9d3840;background:#fff5f5;font-size:11px;line-height:1.5}
+    .error-alert.show{display:block}
+    .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* App header and home */
+    .app-shell{min-height:100vh}
+    .topbar{position:sticky;top:0;z-index:25;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 max(15px,calc((100vw - 1120px)/2));border-bottom:1px solid #e3e9ee;background:rgba(255,255,255,.96);box-shadow:0 2px 10px rgba(20,49,73,.04);backdrop-filter:blur(12px)}
+    .topbar .brand-mark{width:34px;height:34px;border-radius:0;box-shadow:none}
+    .topbar .brand-copy b{font-size:14px;color:var(--navy)}.topbar .brand-copy small{font-size:7px;color:#6d8091}
+    .top-actions{display:flex;align-items:center;gap:8px}
+    .top-date{display:flex;align-items:center;gap:6px;color:#6e8293;font-size:10px}
+    .top-user{display:flex;align-items:center;gap:7px;max-width:155px;padding:5px 8px;border:1px solid #e5ebef;border-radius:20px;color:#38536a;background:#fff;font-size:10px;font-weight:720}
+    .avatar{width:25px;height:25px;display:grid;place-items:center;border-radius:50%;color:#17517a;background:#e6f1f8;font-size:9px;font-weight:850}
+    .icon-button{width:36px;height:36px;display:grid;place-items:center;border:1px solid #e2e9ee;border-radius:10px;color:#5f778a;background:#fff}
+    .icon-button:hover{color:var(--navy);background:#f5f8fa}
+    .icon-button .icon{width:17px;height:17px}
+    .page-wrap{width:min(100%,1120px);margin:0 auto;padding:24px 20px 48px}
+    .demo-banner{display:flex;align-items:flex-start;gap:8px;margin:0 0 17px;padding:10px 12px;border:1px solid #f0d5b8;border-radius:9px;color:#78572f;background:#fffbf4;font-size:10px;line-height:1.5}
+    .demo-banner .icon{width:15px;height:15px;flex:0 0 auto;color:#c48830}
+    .home-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px;padding:24px 25px;border-radius:17px;color:#fff;background:linear-gradient(112deg,#0f3458,#1b5c88);box-shadow:0 9px 22px rgba(16,54,93,.12)}
+    .home-hero::after{content:"";position:absolute;right:-34px;top:-95px;width:250px;height:250px;border:1px solid rgba(255,255,255,.13);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 65px rgba(255,255,255,.025);pointer-events:none}
+    .hero-copy{position:relative;z-index:1}.hero-eyebrow{color:#b9d0e2;font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    .hero-copy h1{margin:7px 0 5px;font-size:27px;line-height:1.12;letter-spacing:-.04em}
+    .hero-copy p{margin:0;color:#d5e2ec;font-size:11px;line-height:1.55}
+    .hero-tags{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px}
+    .hero-tag{display:inline-flex;align-items:center;gap:6px;min-height:29px;padding:0 10px;border:1px solid rgba(255,255,255,.22);border-radius:20px;color:#f1f6fa;background:rgba(255,255,255,.09);font-size:9px;font-weight:700}
+    .home-section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 11px}
+    .home-section-title h2{margin:0;color:#29455d;font-size:14px}
+    .home-section-title p{margin:4px 0 0;color:#8a99a6;font-size:9px}
+    .menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .menu-tile{width:100%;min-height:81px;display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #e1e8ed;border-radius:13px;color:inherit;background:#fff;text-align:left;box-shadow:0 2px 8px rgba(18,48,72,.025);transition:transform .15s,border .15s,box-shadow .15s}
+    .menu-tile:hover{transform:translateY(-2px);border-color:#bfd0dc;box-shadow:var(--shadow)}
+    .menu-icon{width:39px;height:39px;flex:0 0 auto;display:grid;place-items:center;border-radius:12px;color:#1e638f;background:#eaf3f9}
+    .menu-icon.red{color:#b4484f;background:#fff0f1}.menu-icon.green{color:#19745a;background:#eaf7f1}.menu-icon.amber{color:#a2712c;background:#fff5e3}.menu-icon.slate{color:#687b8b;background:#eff3f6}
+    .menu-icon .icon{width:19px;height:19px}
+    .menu-copy{min-width:0;flex:1}.menu-title{display:block;color:#2a465e;font-size:10px;line-height:1.35;font-weight:780}.menu-subtitle{display:block;margin-top:4px;color:#8a99a6;font-size:8px;line-height:1.4}
+    .menu-tile>.icon{width:15px;color:#91a0ac}
+    .today-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}
+    .today-card{padding:13px 14px;border:1px solid #e4eaef;border-radius:12px;background:#fff}
+    .today-label{color:#8494a1;font-size:9px;font-weight:740}.today-value{margin-top:7px;color:#294a64;font-size:13px;font-weight:800}.today-sub{margin-top:4px;color:#99a6b1;font-size:8px}
+    .work-session-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px;margin:0 0 19px;padding:13px 15px;border:1px solid #dfe9e3;border-radius:13px;background:linear-gradient(110deg,#f8fcf9,#fff);box-shadow:0 3px 10px rgba(23,75,54,.035)}
+    .work-session-action{width:106px;min-height:38px;flex:0 0 auto;border:0;border-radius:9px;color:#fff;background:#17835d;font-size:11px;font-weight:850;letter-spacing:.07em;box-shadow:0 4px 10px rgba(23,131,93,.15);transition:background .15s,transform .15s}
+    .work-session-action:not(:disabled):hover{transform:translateY(-1px);background:#116e4d}.work-session-action.logout{background:#c53c48;box-shadow:0 4px 10px rgba(197,60,72,.14)}.work-session-action.logout:not(:disabled):hover{background:#a92f3c}.work-session-action.closed{color:#647887;background:#e8eef2;box-shadow:none}.work-session-action:disabled{cursor:default;opacity:.78}
+    .work-session-copy{width:100%;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;flex:1}.work-session-copy>div{display:flex;flex-direction:column;gap:4px}.work-session-label{color:#8494a1;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.work-session-value{color:#2c4d64;font-size:12px;font-weight:820}.work-session-note{width:100%;color:#8a9aa6;font-size:8px}
+
+    /* Page headings, cards, fields */
+    .page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 16px}
+    .page-heading h1{margin:0;color:#1c3850;font-size:23px;line-height:1.15;letter-spacing:-.035em}
+    .page-heading p{margin:6px 0 0;color:#8191a0;font-size:10px;line-height:1.55}
+    .back-button{display:inline-flex;align-items:center;gap:5px;margin:0 0 13px;border:0;padding:4px 0;color:#627b8f;background:transparent;font-size:10px;font-weight:750}
+    .back-button:hover{color:var(--navy)}
+    .back-button .icon{width:15px;height:15px}
+    .card{min-width:0;margin-bottom:13px;border:1px solid var(--line);border-radius:13px;background:#fff;box-shadow:0 2px 9px rgba(20,49,73,.025)}
+    .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 15px;border-bottom:1px solid #edf1f4}
+    .card-head h2{margin:0;color:#2b4962;font-size:12px;font-weight:800}
+    .card-head p{margin:4px 0 0;color:#8998a5;font-size:9px;line-height:1.45}
+    .card-body{padding:15px}
+    .section-title{display:flex;align-items:center;gap:8px;margin:18px 0 11px;color:#4d6b83;font-size:9px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+    .section-title:first-child{margin-top:0}.section-title::after{content:"";height:1px;flex:1;background:#e8edf1}
+    .field{min-width:0;margin-bottom:13px}.field:last-child{margin-bottom:0}
+    .field-hint{margin:6px 0 0;color:#91a0ac;font-size:9px;line-height:1.5}
+    .field-error{min-height:12px;margin-top:4px;color:#b03f47;font-size:9px}
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
+    .span-2{grid-column:1/-1}
+    .date-picker{position:relative;display:flex;align-items:center;min-height:45px;border:1px solid #dbe3e9;border-radius:10px;background:#fff}
+    .date-display{position:absolute;z-index:1;inset:0;width:100%;height:100%;border:0;border-radius:10px;padding:0 40px 0 12px;color:var(--ink);background:transparent;font-size:12px;pointer-events:none}
+    .date-picker .calendar-icon{position:absolute;z-index:1;right:12px;width:17px;height:17px;color:#7b8d9b;pointer-events:none}
+    .native-date{position:absolute;z-index:2;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+    .date-picker:focus-within{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(40,116,170,.11)}
+    .radio-row,.choice-grid{display:flex;flex-wrap:wrap;gap:7px}
+    .choice-chip{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 10px;border:1px solid #e0e7ec;border-radius:9px;color:#536d82;background:#fff;font-size:9px;font-weight:650;cursor:pointer;transition:.15s}
+    .choice-chip:hover{border-color:#b8cbd8;background:#f9fbfc}
+    .choice-chip:has(input:checked){border-color:#6da1c3;color:#174e77;background:#edf6fb;box-shadow:inset 0 0 0 1px rgba(40,116,170,.05)}
+    .choice-chip input{width:14px;height:14px;margin:0;accent-color:var(--blue)}
+    .check-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+    .check-list .choice-chip{justify-content:flex-start;min-height:38px;padding:7px 9px;line-height:1.35}
+    .status-banner{display:flex;align-items:flex-start;gap:8px;margin:0 0 13px;padding:10px 12px;border:1px solid #c9e8db;border-radius:9px;color:#26674f;background:#f0faf5;font-size:10px;line-height:1.5}
+    .status-banner.info{border-color:#d8e6ef;color:#45677f;background:#f4f9fc}
+    .status-banner.warn{border-color:#f0dcba;color:#80602e;background:#fffaf1}
+    .status-banner .icon{width:16px;height:16px;margin-top:0;flex:0 0 auto}
+    .form-actions{position:sticky;bottom:9px;z-index:10;display:flex;justify-content:flex-end;gap:8px;margin:17px 0 10px;padding:10px;border:1px solid #e1e8ed;border-radius:13px;background:rgba(255,255,255,.95);box-shadow:0 7px 20px rgba(17,44,68,.08);backdrop-filter:blur(10px)}
+    .form-actions .primary{min-width:150px}
+    .empty-state{padding:31px 18px;border:1px dashed #d5e0e8;border-radius:13px;background:rgba(255,255,255,.68);text-align:center}
+    .empty-icon{width:44px;height:44px;display:grid;place-items:center;margin:0 auto 11px;border-radius:14px;color:#3f7aa0;background:#eaf3f9}
+    .empty-state h3{margin:0 0 6px;color:#2e4d66;font-size:13px}.empty-state p{max-width:390px;margin:0 auto;color:#8796a3;font-size:10px;line-height:1.6}
+    .subtle{color:#8b9aa6;font-size:9px;line-height:1.5}
+    .tag{display:inline-flex;align-items:center;min-height:23px;padding:0 8px;border-radius:20px;color:#356283;background:#edf5fa;font-size:9px;font-weight:750}
+    .tag.red{color:#9e484e;background:#fff0f1}.tag.green{color:#287056;background:#eaf7f1}.tag.amber{color:#8e672d;background:#fff5e4}.tag.grey{color:#63788a;background:#eff3f6}
+    .muted-divider{height:1px;margin:12px 0;background:#edf1f4}
+
+    /* Allotted tasks */
+    .assigned-card{padding:14px;border:1px solid #e0e7ec;border-radius:13px;background:#fff;box-shadow:0 2px 8px rgba(20,49,73,.025)}
+    .assigned-card+.assigned-card{margin-top:10px}
+    .assigned-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .priority{display:inline-flex;align-items:center;gap:5px;min-height:22px;padding:0 8px;border-radius:20px;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}
+    .priority::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+    .priority.high{color:#a53e45;background:#fff0f0}.priority.medium{color:#9c6c22;background:#fff6e5}.priority.low{color:#54748a;background:#eef5f8}
+    .assigned-title{margin:7px 0 4px;color:#29475f;font-size:13px;font-weight:820;line-height:1.35}
+    .assigned-desc{margin:7px 0 0;color:#687f91;font-size:10px;line-height:1.6;white-space:pre-wrap}
+    .assigned-meta{display:flex;flex-wrap:wrap;gap:7px 12px;margin-top:9px;color:#8a99a6;font-size:9px}
+    .assigned-controls{display:grid;grid-template-columns:minmax(130px,.35fr) minmax(0,1fr);gap:10px;margin-top:13px;padding-top:12px;border-top:1px solid #edf1f4}
+    .assigned-controls .field{margin:0}.assigned-controls .textarea-control{min-height:62px}
+    .assigned-save{display:flex;justify-content:flex-end;margin-top:10px}
+
+    /* Time and task tiles */
+    .task-group{margin-bottom:17px}.task-group-title{margin:0 0 9px;color:#49667d;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+    .task-tile{overflow:hidden;margin-bottom:8px;border:1px solid #e1e8ed;border-radius:12px;background:#fff}
+    .task-tile-head{display:flex;align-items:center;gap:10px;min-height:52px;padding:9px 12px;cursor:pointer}
+    .task-tile-head input{width:16px;height:16px;margin:0;accent-color:var(--blue)}
+    .task-tile-name{flex:1;color:#314e66;font-size:10px;font-weight:780;line-height:1.35}
+    .task-count-pill{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:23px;padding:0 7px;border-radius:12px;color:#477594;background:#eef5f9;font-size:9px;font-weight:800}
+    .task-tile-body{padding:12px;border-top:1px solid #edf1f4;background:#fbfcfd}
+    .entry-card{position:relative;margin-bottom:8px;padding:11px;border:1px solid #e4eaef;border-radius:10px;background:#fff}
+    .entry-card:last-child{margin-bottom:0}
+    .entry-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;color:#526f85;font-size:9px;font-weight:800}
+    .entry-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 9px}
+    .entry-fields .field{margin-bottom:7px}.entry-fields .control,.entry-fields .textarea-control{min-height:38px;font-size:10px}.entry-fields .textarea-control{min-height:55px}
+    .remove-entry{width:27px;height:27px;display:grid;place-items:center;border:0;border-radius:7px;color:#986168;background:#fff3f3}
+    .remove-entry .icon{width:14px;height:14px}
+    .add-entry{min-height:34px;margin-top:8px;padding:0 10px;font-size:9px}
+    .summary-count{margin:0 0 9px;color:#758a9b;font-size:9px;font-weight:750}
+    .task-summary-list{display:grid;gap:7px}
+    .task-summary-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:8px;background:#f4f7f9;color:#627a8c;font-size:9px}
+    .task-summary-row b{color:#284861;font-size:10px}
+
+    /* Map */
+    .map-panel{position:relative;overflow:hidden;min-height:210px;border:1px solid #dce5eb;border-radius:12px;background:linear-gradient(135deg,#edf4f7,#e3eef3)}
+    .map-panel.large{min-height:265px}
+    .map-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:20px;color:#60798c;text-align:center;font-size:10px;line-height:1.5}
+    .map-fallback .pin{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:#fff;background:var(--red);box-shadow:0 0 0 8px rgba(216,61,70,.12)}
+    .map-fallback strong{color:#2e5068;font-size:11px}
+    .map-coordinates{color:#6d8495;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px}
+    .leaflet-container{font:10px var(--font);z-index:1}
+    .location-status{display:flex;align-items:flex-start;gap:8px;margin-top:8px;color:#788e9f;font-size:9px;line-height:1.5}
+    .location-status .icon{width:15px;height:15px;flex:0 0 auto;color:#3d789f}
+    .map-attribution{position:absolute;right:5px;bottom:4px;z-index:2;padding:2px 4px;border-radius:4px;color:#617587;background:rgba(255,255,255,.82);font-size:7px}
+
+    /* Expenses and attachments */
+    .location-readonly{display:flex;flex-wrap:wrap;align-items:center;gap:7px;min-height:42px;padding:7px 10px;border:1px solid #e2e9ee;border-radius:10px;color:#47657c;background:#f7f9fa;font-size:10px}
+    .expense-group{padding:13px;border:1px solid #e4eaef;border-radius:11px;background:#fff}
+    .expense-group+.expense-group{margin-top:10px}
+    .expense-group-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+    .expense-group-head strong{color:#38566f;font-size:10px}
+    .currency-input{position:relative}.currency-input span{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#778a98;font-size:10px;pointer-events:none}.currency-input .control{padding-left:33px}
+    .file-picker{padding:13px;border:1px dashed #cbd8e1;border-radius:10px;background:#fbfcfd}
+    .file-picker input{width:100%;font-size:9px;color:#607789}
+    .file-picker input::file-selector-button{min-height:31px;margin-right:8px;border:1px solid #d8e2e9;border-radius:7px;padding:0 9px;color:#3f6078;background:#fff;font:700 9px var(--font);cursor:pointer}
+    .file-list{display:grid;gap:5px;margin-top:8px}
+    .file-item{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:7px;color:#687e8e;background:#f1f5f7;font-size:8px;overflow-wrap:anywhere}
+    .file-item .icon{width:13px;height:13px;flex:0 0 auto;color:#6084a0}
+    .attached-file{display:flex;align-items:center;gap:7px;padding:7px 8px;border:1px solid #edf1f4;border-radius:7px;color:#677d8c;font-size:8px;line-height:1.45;overflow-wrap:anywhere}
+    .attached-file+.attached-file{margin-top:5px}
+
+    /* List and reports */
+    .range-bar{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:9px;margin-bottom:13px;padding:12px;border:1px solid #e1e8ed;border-radius:12px;background:#fff}
+    .range-bar .field{margin:0}.range-bar .primary{min-height:41px}
+    .record-list{overflow:hidden;border:1px solid #e2e9ee;border-radius:12px;background:#fff}
+    .record-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border:0;border-bottom:1px solid #edf1f4;color:inherit;background:#fff;text-align:left}
+    .record-row:last-child{border-bottom:0}.record-row:hover{background:#f9fbfc}
+    .record-date{color:#2e4d66;font-size:11px;font-weight:790}.record-sub{margin-top:4px;color:#8a99a6;font-size:9px;line-height:1.4}
+    .record-value{display:flex;align-items:center;gap:7px;color:#566f83;font-size:10px;font-weight:720;text-align:right}
+    .record-row>.icon{width:15px;color:#92a0ac}
+    .report-table{width:100%;border-collapse:collapse}.report-table th{padding:11px 12px;border-bottom:1px solid #e7edf1;color:#8493a0;background:#f9fbfc;text-align:left;font-size:8px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.report-table td{padding:11px 12px;border-bottom:1px solid #edf1f4;color:#506a7e;font-size:10px}.report-table tr:last-child td{border-bottom:0}.report-table td:last-child,.report-table th:last-child{text-align:right}.report-table .grand-total td{color:#234b68;background:#eef5f8;font-weight:850}.report-total{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:11px 12px;border-radius:9px;color:#42647d;background:#eef5f8;font-size:10px;font-weight:800}
+    .month-filters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px;padding:12px;border:1px solid #e1e8ed;border-radius:12px;background:#fff}
+    .detail-section{margin:0 0 13px}.detail-section:last-child{margin-bottom:0}.detail-section h4{margin:0 0 6px;color:#3b5b73;font-size:10px}.detail-value{color:#647c8e;font-size:10px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .detail-pair{padding:9px;border-radius:8px;background:#f5f8fa}.detail-pair span{display:block;color:#91a0ac;font-size:8px;font-weight:700}.detail-pair b{display:block;margin-top:4px;color:#38566f;font-size:10px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+
+    /* Modal, toast, loading */
+    .modal-root{position:fixed;z-index:60;inset:0;pointer-events:none}
+    .modal-backdrop{position:absolute;inset:0;display:grid;place-items:center;padding:18px;background:rgba(14,34,52,.45);backdrop-filter:blur(3px);pointer-events:auto}
+    .modal{width:min(100%,600px);max-height:min(88vh,820px);overflow:auto;border-radius:15px;background:#fff;box-shadow:0 22px 70px rgba(7,23,37,.22)}
+    .modal.wide-modal{width:min(100%,820px)}
+    .modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid #edf1f4;background:rgba(255,255,255,.96);backdrop-filter:blur(8px)}
+    .modal-head h2{margin:0;color:#29465e;font-size:13px}.modal-body{padding:15px}.modal-close{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:8px;color:#708394;background:#f3f6f8}
+    .toast-region{position:fixed;z-index:80;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));display:grid;gap:8px;width:min(360px,calc(100vw - 28px));pointer-events:none}
+    .toast{display:flex;align-items:flex-start;gap:8px;padding:11px 12px;border:1px solid #d8e7df;border-radius:10px;color:#2d6851;background:#fff;box-shadow:0 9px 27px rgba(16,44,66,.14);font-size:10px;line-height:1.5;pointer-events:auto;animation:toastIn .18s ease-out}
+    .toast.error{border-color:#efced0;color:#a13d44}.toast .icon{width:16px;height:16px;flex:0 0 auto}
+    @keyframes toastIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    .loading{display:flex;align-items:center;justify-content:center;gap:9px;min-height:115px;color:#7b8f9e;font-size:10px}.loading .spin-dark{width:16px;height:16px;border:2px solid #d5e1e9;border-top-color:#316f98;border-radius:50%;animation:spin .7s linear infinite}
+
+    .approval-report-table{min-width:1450px}.approval-report-table td:last-child,.approval-report-table th:last-child{text-align:left}.approval-punch-details{min-width:245px;white-space:normal;line-height:1.5}.approval-punch-details>div{margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #edf1f4;overflow-wrap:anywhere}.approval-punch-details>div:last-child{margin:0;padding:0;border:0}.approval-punch-details span{color:#788b99}
+    @media(min-width:760px){
+      .page-wrap{padding-top:31px}.menu-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.menu-tile{min-height:91px;padding:15px}.menu-title{font-size:11px}.menu-subtitle{font-size:9px}.home-hero{padding:28px 32px}.hero-copy h1{font-size:31px}.card-body{padding:18px}.assigned-card{padding:17px}.task-group{margin-bottom:19px}
+    }
+    @media(max-width:520px){
+      .login-screen{padding:12px}.login-card{border-radius:17px}.login-top{padding:23px 21px 20px}.login-top .app-brand{margin-bottom:22px}.login-top h1{font-size:24px}.login-body{padding:21px}.topbar{padding:0 12px;min-height:58px}.top-date{display:none}.top-user{max-width:112px;padding:4px 6px;font-size:9px}.page-wrap{padding:18px 12px calc(32px + env(safe-area-inset-bottom))}.home-hero{align-items:flex-start;flex-direction:column;gap:11px;padding:19px 17px}.hero-copy h1{font-size:24px}.hero-tags{justify-content:flex-start}.menu-grid{gap:8px}.menu-tile{min-height:88px;gap:9px;padding:10px}.menu-icon{width:34px;height:34px;border-radius:10px}.menu-icon .icon{width:17px;height:17px}.menu-title{font-size:9px}.menu-subtitle{font-size:7px}.today-panel{gap:7px}.today-card{padding:11px 10px}.today-label{font-size:8px}.today-value{font-size:11px}.today-sub{font-size:7px}.work-session-card{align-items:flex-start;gap:10px;padding:11px}.work-session-action{width:91px}.work-session-copy{gap:7px 12px}.work-session-value{font-size:10px}.page-heading h1{font-size:21px}.page-heading p{font-size:9px}.card-body{padding:13px}.field-grid{grid-template-columns:1fr;gap:0}.span-2{grid-column:auto}.check-list{grid-template-columns:1fr}.check-list .choice-chip{min-height:36px}.choice-chip{font-size:8px}.range-bar{grid-template-columns:1fr 1fr}.range-bar .primary{grid-column:1/-1;width:100%}.assigned-controls{grid-template-columns:1fr}.form-actions{bottom:5px}.form-actions .primary{flex:1;min-width:0}.entry-fields{grid-template-columns:1fr 1fr}.month-filters{grid-template-columns:1fr 1fr}.report-table th,.report-table td{padding:9px 8px}.detail-grid{grid-template-columns:1fr 1fr}.modal-backdrop{align-items:end;padding:9px}.modal{max-height:91vh;border-radius:16px 16px 12px 12px}.map-panel{min-height:190px}
+    }
+    @media(max-width:360px){.menu-tile{gap:7px;padding:9px}.menu-icon{width:30px;height:30px}.menu-title{font-size:8px}.topbar .brand-copy small{font-size:6px}.top-user{max-width:86px}.detail-grid{grid-template-columns:1fr}}
+    @media(max-width:520px){
+      .field-label{font-size:12px}.control,.select-control,.textarea-control{font-size:16px;min-height:48px}.textarea-control{min-height:100px}.date-display{font-size:14px}
+      .primary,.secondary,.danger,.quiet{min-height:45px;font-size:12px}.demo-banner,.status-banner,.loading,.toast{font-size:11px}.page-heading p{font-size:11px}.field-hint{font-size:10px}
+      .menu-title{font-size:10px}.menu-subtitle{font-size:9px}.home-section-title h2{font-size:15px}.home-section-title p{font-size:10px}.today-label{font-size:9px}.today-sub{font-size:8px}
+      .choice-chip{font-size:10px}.check-list .choice-chip{min-height:40px}.assigned-title{font-size:14px}.assigned-desc{font-size:12px}.assigned-meta{font-size:10px}
+      .task-group-title{font-size:11px}.task-tile-name{font-size:11px}.task-summary-row,.detail-value{font-size:11px}.record-date{font-size:12px}.record-sub{font-size:10px}.record-value{font-size:11px}
+      .report-table th{font-size:9px}.report-table td{font-size:11px}.report-total{font-size:11px}.detail-pair span{font-size:9px}.detail-pair b{font-size:11px}.detail-section h4{font-size:11px}
+      .file-picker input{font-size:11px}.file-picker input::file-selector-button{font-size:11px}.file-item,.attached-file{font-size:9px}
+    }
+    @media(max-width:360px){.menu-grid{grid-template-columns:1fr}.menu-tile{min-height:76px;gap:10px;padding:11px}.menu-icon{width:34px;height:34px}.menu-title{font-size:11px}.menu-subtitle{font-size:9px}.today-label{font-size:8px}.today-sub{font-size:7px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+    .self-daily-overview{margin:0 0 14px;padding:11px;border:1px solid #1c3d57;border-radius:13px;color:#e5eef4;background:linear-gradient(120deg,#071a2b,#0c2b44 58%,#0a253b);box-shadow:inset 0 1px rgba(255,255,255,.035),0 8px 20px rgba(8,25,39,.1)}
+    .self-overview-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+    .self-overview-heading{min-width:0}.self-overview-title{color:#f0f6fa;font-size:12px;font-weight:850;letter-spacing:-.01em}.self-overview-date{margin-top:3px;color:#9db2c1;font-size:8px;font-weight:650}
+    .self-overview-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}.self-overview-status{display:inline-flex;align-items:center;gap:5px;max-width:112px;overflow:hidden;padding:4px 7px;border:1px solid #355064;border-radius:20px;color:#c2d0d9;background:#102c42;font-size:8px;font-weight:780;text-overflow:ellipsis;white-space:nowrap}.self-overview-status i{width:6px;height:6px;flex:0 0 auto;border-radius:50%;background:#95a7b3}.self-overview-status.present{border-color:#245943;color:#b6e3d1;background:#0e302b}.self-overview-status.present i{background:#43c08b}.self-overview-status.away{border-color:#60353e;color:#f0b7bb;background:#35232d}.self-overview-status.away i{background:#ed6c75}.self-overview-status.missing{color:#d3c39f;background:#302d26;border-color:#534b39}.self-overview-status.missing i{background:#d4a44f}
+    .self-overview-refresh{width:27px;height:27px;display:grid;place-items:center;border:1px solid #31516a;border-radius:8px;color:#d1e0e9;background:#102f48;font-size:15px;line-height:1}.self-overview-refresh:hover{border-color:#4c7796;background:#153a56}.self-overview-refresh:focus-visible{outline:2px solid #70b4df;outline-offset:2px}
+    .self-overview-identity{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;margin:7px 0 8px;padding:6px 1px;border-top:1px solid #1d3c54;border-bottom:1px solid #1d3c54}.self-overview-name{min-width:0;overflow:hidden;color:#f0f5f8;font-size:10px;font-weight:820;text-overflow:ellipsis;white-space:nowrap}.self-overview-base{flex:0 0 auto;color:#a4b7c4;font-size:8px;text-align:right}
+    .self-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.self-overview-cell{min-width:0;min-height:46px;padding:7px 8px;border:1px solid #23445b;border-radius:8px;background:#0d2b43}.self-overview-cell-label{display:block;margin-bottom:3px;color:#829bad;font-size:7px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.self-overview-cell-value{display:block;color:#e0eaf0;font-size:9px;font-weight:720;line-height:1.25;overflow-wrap:anywhere;word-break:normal}.self-overview-punch-dealer{color:#9dcbe5;font-size:8px;font-weight:700}.self-overview-more{display:inline-flex;vertical-align:1px;margin-left:3px;padding:1px 4px;border:1px solid #255744;border-radius:5px;color:#a9e2ca;background:#10362f;font-size:8px;font-weight:850;white-space:nowrap}
+    .self-overview-message{padding:11px 8px;border:1px dashed #39576c;border-radius:9px;color:#a9bdca;background:rgba(8,25,38,.5);font-size:9px;line-height:1.4;text-align:center}.self-overview-error{margin-top:6px;color:#ff9ba2;font-size:8px}
+    @media(min-width:1024px){.self-overview-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+    @media(max-width:760px){.self-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.self-overview-cell{min-height:42px;padding:6px 7px}.self-overview-identity{margin:6px 0 7px;padding:5px 1px}}
+    @media(max-width:390px){.self-daily-overview{padding:8px}.self-overview-cell{min-height:40px;padding:6px}.self-overview-cell-value{font-size:8px}.self-overview-name{font-size:9px}.self-overview-date{font-size:8px}.self-overview-cell-label{letter-spacing:.05em}.self-overview-status{max-width:88px;padding:4px 6px}}
+  </style>
+</head>
+<body>
+  <svg class="sr-only" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 3v4M8 3v4M3 10h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 5h16a2 2 0 0 1 2 2v12H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M22 10h-5a2 2 0 0 0 0 4h5m-5-2h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 4V2h6v2M8 10h8M8 14h8M8 18h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6m3-3h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m3 0-.9 14H5.9L5 6m4 4v6m6-6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a16.3 16.3 0 0 1-3 3.8M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7c1.4 0 2.7-.3 3.8-.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6M9 12h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5m0-8h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m10.3 3.9-8.1 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.8-3.1l-8.1-14a2 2 0 0 0-3.4 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v4m0 4h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5M15 12H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18m-11 0v2h4v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <section id="loginView" class="login-screen" aria-label="Field Engineer sign in">
+    <div class="login-card">
+      <div class="login-top">
+        <div class="app-brand"><div class="brand-mark" aria-hidden="true"></div><div class="brand-copy"><b>FST</b><small>Field Support · Technicians</small></div></div>
+        <h1>Field Engineer</h1>
+        <p>Sign in to manage your day, dealer visits and assigned tasks.</p>
+      </div>
+      <div class="login-body">
+        <div id="loginError" class="error-alert" role="alert"></div>
+        <form id="loginForm" novalidate>
+          <div class="field"><label class="field-label" for="loginUsername">User name <span class="required">*</span></label><input id="loginUsername" class="control" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Enter your user name" required></div>
+          <div class="field"><label class="field-label" for="loginPassword">Password <span class="required">*</span></label><div class="password-wrap"><input id="loginPassword" class="control" type="password" autocomplete="current-password" placeholder="Enter your password" required><button type="button" class="show-pass" data-show-password="loginPassword" aria-label="Show password"><svg class="icon"><use href="#i-eye"></use></svg></button></div></div>
+          <button id="loginButton" class="primary wide" type="submit"><span>Sign in</span><svg class="icon"><use href="#i-arrow"></use></svg></button>
+        </form>
+        <div id="demoLoginNote" class="demo-note"><strong>Preview mode:</strong> use <b>engineer</b> / <b>FSTdemo123!</b>. Demo records stay in this browser only.</div>
+        <p class="login-hint">For authorized FST Field Engineers only.<br>Dates are displayed as DD/MM/YYYY.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="appView" class="app-shell hidden" aria-label="FST Field Engineer workspace">
+    <header class="topbar">
+      <div class="app-brand"><div class="brand-mark" aria-hidden="true"></div><div class="brand-copy"><b>FST</b><small>Field Support · Technicians</small></div></div>
+      <div class="top-actions"><span class="top-date"><svg class="icon" style="width:14px;height:14px"><use href="#i-calendar"></use></svg><span id="topDate"></span></span><span id="topUser" class="top-user"><span id="userAvatar" class="avatar">AK</span><span id="userNameTop">Engineer</span></span><button class="icon-button" type="button" data-logout aria-label="Sign out" title="Sign out"><svg class="icon"><use href="#i-log-out"></use></svg></button></div>
+    </header>
+    <main id="pageRoot" class="page-wrap" tabindex="-1"></main>
+  </section>
+
+  <div id="modalRoot" class="modal-root"></div>
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+  <iframe id="apiFrame" name="fstFieldApiFrame" class="hidden" title="FST API response" aria-hidden="true"></iframe>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    /* Empty API_URL enables the safe local demo. Set it to the same Apps Script /exec URL as the admin app for live data. */
+    const CONFIG = { API_URL: "https://script.google.com/macros/s/AKfycbzxS2dO9ZL5lecRqSL_XAbD4UyNviTQLXhe_uIWWPcM0FkjaKch5yW4SPYzL-sfoy4J/exec" };
+    const SESSION_KEY = "fst_field_engineer_session_v1";
+    const DEMO_DB_KEY = "fst_field_engineer_demo_db_v1";
+    const ATTENDANCE_STATUSES = ["Present", "Leave", "Week-Off", "Holiday"];
+    const LOCATIONS = ["Local", "Outstation", "Travelling"];
+    const VISIT_TYPES = ["On-Site [Local]", "On-Site [Outstation]", "Off-Site [Home]", "Regional Bosch Office", "Travelling"];
+    const VISIT_ACTIVITIES = [
+      "Dealer Visit - Local", "Dealer Visit - Outstation", "Assessment Related", "Reassessment Related",
+      "Warranty Material Inspection", "AdiCare Discussion", "Attending Joint Investigation", "Attending Campaign",
+      "OE Extended Warranty Discussion", "Neutral Workshop Visit", "AMC Related Discussion", "Regional Bosch Office",
+      "Travelling [Whole Day]", "iTrams", "Others"
+    ];
+    const OTHER_ACTIVITIES = [
+      "Weekly Data Collection [Reference Injector]", "eJC Data Quality Validation", "Dealer Reassessment Calls",
+      "IUW Marketing Calls", "AdiCare Marketing Calls", "OE Extended Warranty Calls", "Warranty Support to BDS/BES",
+      "OECD Mapping", "Calibration Related", "AMC Related", "Others"
+    ];
+    const TASK_CATALOG = [
+      { key:"dsqAudit", label:"DSQ Audit", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"score",label:"Score",type:"number"}] },
+      { key:"segQAudit", label:"SEG Q Audit", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"score",label:"Score",type:"number"}] },
+      { key:"hubAudit", label:"HUB Audit", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"score",label:"Score",type:"number"}] },
+      { key:"spokeAudit", label:"SPOKE Audit", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"score",label:"Score",type:"number"}] },
+      { key:"reassessment", label:"Reassessment", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"oldScore",label:"Old score",type:"number"},{key:"newScore",label:"New score",type:"number"},{key:"comments",label:"Comments",type:"textarea",span:true}] },
+      { key:"dsqMaterialInspection", label:"DSQ Material Inspection", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"materialsInspected",label:"Materials Inspected",type:"textarea",span:true}] },
+      { key:"segQMaterialInspection", label:"SEG Q Material Inspection", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Dealer Count", addLabel:"Add dealer", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"materialsInspected",label:"Materials Inspected",type:"textarea",span:true}] },
+      { key:"jointInvestigation", label:"Joint Investigation", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"JI Count", addLabel:"Add investigation", fields:[{key:"location",label:"Location"},{key:"details",label:"JI details",type:"textarea",span:true}] },
+      { key:"campaign", label:"Campaign", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Campaign Count", addLabel:"Add campaign", fields:[{key:"location",label:"Location"},{key:"details",label:"Campaign details",type:"textarea",span:true}] },
+      { key:"iTrams", label:"iTrams", category:"Dealer & Workshop Activities", kind:"repeat", countLabel:"Ticket Count", addLabel:"Add ticket", fields:[{key:"dealerName",label:"Dealer name"},{key:"city",label:"City"},{key:"comments",label:"Comments",type:"textarea",span:true}] },
+      { key:"weeklyDataCollection", label:"Weekly Data Collection [Reference Injector]", category:"Calls & Other Activities", kind:"weekly", countField:"collectedDataCount" },
+      { key:"ejcDataQuality", label:"eJC Data Quality Validation", category:"Calls & Other Activities", kind:"ejc", countField:"ejcCount" },
+      { key:"reassessmentCalls", label:"Reassessment Calls", category:"Calls & Other Activities", kind:"reassessmentCalls", countField:"callCount" },
+      { key:"iuwMarketingCalls", label:"IUW Marketing Calls", category:"Calls & Other Activities", kind:"callsSales", countField:"callCount", salesLabel:"Today’s subscription", salesField:"todaysSubscription" },
+      { key:"adiCareMarketingCalls", label:"AdiCare Marketing Calls", category:"Calls & Other Activities", kind:"callsSales", countField:"callCount", salesLabel:"Today’s sales", salesField:"todaysSales" },
+      { key:"oeExtendedWarrantyCalls", label:"OE Extended Warranty Calls", category:"Calls & Other Activities", kind:"callsSales", countField:"callCount", salesLabel:"Today’s sales", salesField:"todaysSales" },
+      { key:"warrantySupport", label:"Warranty Support to BDS/BES", category:"Calls & Other Activities", kind:"callsComments", countField:"callCount" },
+      { key:"oecdMapping", label:"OECD Mapping", category:"Calls & Other Activities", kind:"callsComments", countField:"callCount" },
+      { key:"calibrationRelated", label:"Calibration Related", category:"Calls & Other Activities", kind:"callsComments", countField:"callCount" },
+      { key:"amcRelated", label:"AMC Related", category:"Calls & Other Activities", kind:"callsComments", countField:"callCount" },
+      { key:"others", label:"Others", category:"Calls & Other Activities", kind:"others", countField:"" }
+    ];
+    const MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const MENU_ITEMS = [
+      {view:"allotted",title:"View & Update Allotted Tasks",subtitle:"Manager priorities and responses",icon:"list",color:"red"},
+      {view:"attendance",title:"Update Attendance",subtitle:"Daily attendance and plan",icon:"calendar",color:"blue"},
+      {view:"punch",title:"Update Dealer Punch",subtitle:"Dealer visit with GPS location",icon:"map-pin",color:"green"},
+      {view:"dailyTasks",title:"Update Daily Tasks",subtitle:"Work performed today",icon:"clipboard",color:"amber"},
+      {view:"expenses",title:"Update Daily Expenses",subtitle:"Travel and lodging claims",icon:"wallet",color:"green"},
+      {view:"viewAttendance",title:"View Attendance",subtitle:"Review attendance history",icon:"calendar",color:"slate"},
+      {view:"viewPunch",title:"View Dealer Punch",subtitle:"Visit history and map",icon:"map-pin",color:"blue"},
+      {view:"viewTasks",title:"View Tasks",subtitle:"Daily task summaries",icon:"clipboard",color:"amber"},
+      {view:"taskCount",title:"My Task Count",subtitle:"Monthly activity totals",icon:"list",color:"red"},
+      {view:"viewExpenses",title:"View Expenses",subtitle:"Expense history and totals",icon:"wallet",color:"slate"},
+      {view:"expenseApprovalStatus",title:"Expenses Approval Status",subtitle:"Monthly claim decisions",icon:"wallet",color:"blue"},
+      {view:"monthlyTourPlan",title:"Update Monthly Tour Plan",subtitle:"Plan locations, dealers and tasks for the month",icon:"calendar",color:"amber"}
+    ];
+    const ICONS = {
+      home:'<svg class="icon"><use href="#i-home"></use></svg>', list:'<svg class="icon"><use href="#i-list"></use></svg>',
+      calendar:'<svg class="icon"><use href="#i-calendar"></use></svg>', 'map-pin':'<svg class="icon"><use href="#i-map-pin"></use></svg>',
+      clock:'<svg class="icon"><use href="#i-clock"></use></svg>', wallet:'<svg class="icon"><use href="#i-wallet"></use></svg>',
+      clipboard:'<svg class="icon"><use href="#i-clipboard"></use></svg>', users:'<svg class="icon"><use href="#i-users"></use></svg>',
+      plus:'<svg class="icon"><use href="#i-plus"></use></svg>', trash:'<svg class="icon"><use href="#i-trash"></use></svg>',
+      arrow:'<svg class="icon"><use href="#i-arrow"></use></svg>', back:'<svg class="icon"><use href="#i-back"></use></svg>',
+      info:'<svg class="icon"><use href="#i-info"></use></svg>', alert:'<svg class="icon"><use href="#i-alert"></use></svg>',
+      check:'<svg class="icon"><use href="#i-check"></use></svg>', logOut:'<svg class="icon"><use href="#i-log-out"></use></svg>'
+    };
+    const state = {
+      token:"", user:null, page:"home", loading:false, apiQueue:Promise.resolve(),
+      assignedTasks:[],
+      fieldEngineerOverview:null, fieldEngineerOverviewLoading:false, fieldEngineerOverviewError:"", fieldEngineerOverviewRefreshPending:false,
+      attendanceDate:"", attendanceRecord:null, recordLoading:false, recordLoadingType:"", recordLoadingDate:"", 
+      taskDate:"", taskRecord:null, taskDraft:null, taskSession:null, taskSessionLoading:false,
+      workSession:null, workSessionLoading:true, workSessionBusy:false, workSessionRefreshPending:false,
+      expenseDate:"", expenseRecord:null, expenseDraft:null, expenseAttendance:null, expenseTasks:null, expenseTravelFiles:[], expenseLodgingFiles:[], homeLoading:false,
+      monthlyExpenseTotal:0, monthlyExpenseRecordCount:0, monthlyExpenseMonthKey:"", monthlyExpenseLoading:false, monthlyExpenseError:"",
+      rangeFrom:"", rangeTo:"", rangeRecords:[], rangeLoading:false,
+      countYear:2026, countMonth:1, countRows:[], approvalYear:2026, approvalMonth:1, approvalRows:[], approvalTotal:0, approvalLoading:false,
+      tourPlanYear:2026, tourPlanMonth:1, tourPlanRows:[], tourPlanOriginal:[], tourPlanLoading:false, tourPlanDirty:false, tourPlanSaving:false, tourPlanError:"",
+      geo:null, geoBusy:false, punchDraft:{dealerName:"",dealerCity:""},
+      mapInstances:[], modalMapPoints:[]
+    };
+    let demoDbMemory = null;
+    const apiFrame = document.getElementById("apiFrame");
+    const pendingCalls = new Map();
+    let workSessionTicker = null;
+    let monthlyExpenseRequestId = 0;
+
+    function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));}
+    function icon(name){return ICONS[name]||"";}
+    function todayDDMMYYYY(){try{return new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date());}catch(_){const d=new Date();return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+d.getFullYear();}}
+    function todayISO(){const p=todayDDMMYYYY().split("/");return p[2]+"-"+p[1]+"-"+p[0];}
+    function isoToDisplay(value){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||""));return m?m[3]+"/"+m[2]+"/"+m[1]:todayDDMMYYYY();}
+    function displayToISO(value){const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(value||""));return m?m[3]+"-"+m[2]+"-"+m[1]:todayISO();}
+    function firstDayOfCurrentMonth(){const p=todayDDMMYYYY().split("/");return "01/"+p[1]+"/"+p[2];}
+    function currentMonthRange(){const p=todayDDMMYYYY().split("/");const month=Number(p[1]),year=Number(p[2]);const lastDay=new Date(year,month,0).getDate();return{key:p[1]+"/"+p[2],name:MONTH_NAMES[month-1]||"Current Month",from:"01/"+p[1]+"/"+p[2],to:String(lastDay).padStart(2,"0")+"/"+p[1]+"/"+p[2]};}
+    function dateKey(value){const p=String(value||"").split("/");return p.length===3?p[2]+p[1]+p[0]:"";}
+    function initials(name){return String(name||"FST").trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase()||"FE";}
+    function safeLocalGet(key){try{return localStorage.getItem(key)}catch(_){return null}}
+    function safeLocalSet(key,value){try{localStorage.setItem(key,value)}catch(_){}}
+    function safeSessionGet(){try{return sessionStorage.getItem(SESSION_KEY)}catch(_){return null}}
+    function safeSessionSet(value){try{if(value==null)sessionStorage.removeItem(SESSION_KEY);else sessionStorage.setItem(SESSION_KEY,value)}catch(_){}}
+    function clone(value){return JSON.parse(JSON.stringify(value));}
+    function pageTitle(page){const item=MENU_ITEMS.find(x=>x.view===page);return item?item.title:(page==="home"?"My workspace":"FST");}
+    function setError(message){const el=document.getElementById("loginError");el.textContent=message||"";el.classList.toggle("show",Boolean(message));}
+    function setBusy(button,busy,label){if(!button)return;button.disabled=busy;button.innerHTML=busy?'<span class="spin"></span><span>Saving…</span>':label;}
+    function requireTrimmedFields(form,fields){for(const [name,label] of fields){const input=form&&form.querySelector('[name="'+name+'"]');if(!input||!String(input.value||"").trim()){const verb=/Comments$/i.test(label)?"are":"is";showToast(label+" "+verb+" required.","error");if(input)input.focus();return false;}}return true;}
+
+    function datePicker(id,value){
+      const iso=displayToISO(value||todayDDMMYYYY());
+      return '<div class="date-picker"><input id="'+esc(id)+'Display" class="date-display" type="text" value="'+esc(value||todayDDMMYYYY())+'" readonly aria-label="Date in DD/MM/YYYY format"><svg class="icon calendar-icon" aria-hidden="true"><use href="#i-calendar"></use></svg><input id="'+esc(id)+'" class="native-date" type="date" lang="en-GB" value="'+esc(iso)+'" data-date-picker="'+esc(id)+'" aria-label="Choose date"></div>';
+    }
+    function updateDateDisplay(id){const native=document.getElementById(id);const display=document.getElementById(id+"Display");if(native&&display)display.value=isoToDisplay(native.value);}
+    function renderPageHeader(title,subtitle,back){return (back?'<button class="back-button" type="button" data-home>'+icon("back")+'<span>Back to menu</span></button>':'')+'<div class="page-heading"><div><h1>'+esc(title)+'</h1><p>'+esc(subtitle||"")+'</p></div></div>';}
+    function renderWorkSessionCard(){
+      const session=state.workSession;
+      const active=Boolean(session&&session.status==="LOGGED_IN");
+      const closed=Boolean(session&&session.status==="LOGGED_OUT");
+      const duration=active?formatDurationMinutes(sessionElapsedMinutes(session)):closed?(session.duration||formatDurationMinutes(Number(session.elapsedMinutes)||0)):"00:00";
+      const buttonLabel=state.workSessionLoading?"CHECKING…":state.workSessionBusy?"SAVING…":active?"LOGOUT":closed?"LOGGED OUT":"LOGIN";
+      const buttonClass="work-session-action"+(active?" logout":closed?" closed":"");
+      const loginTime=session&&session.loginTime||"Not Logged-In";
+      const logoutTime=session&&session.logoutTime||"Not Logged-Out";
+      const durationLabel=closed?"Total duration":"Elapsed duration";
+      return '<section class="work-session-card" aria-label="Daily login and logout"><button class="'+buttonClass+'" type="button" data-work-session '+(state.workSessionLoading||state.workSessionBusy||closed?' disabled':'')+'>'+buttonLabel+'</button><div class="work-session-copy"><div><span class="work-session-label">Login time</span><b class="work-session-value">'+esc(loginTime)+'</b></div><div><span class="work-session-label">'+durationLabel+'</span><b class="work-session-value" aria-live="polite">'+esc(duration)+'</b></div>'+(closed?'<div><span class="work-session-label">Logout time</span><b class="work-session-value">'+esc(logoutTime)+'</b></div>':'')+'<span class="work-session-note">'+(active?'Session is active; duration refreshes every minute.':closed?'Today’s session is closed. A new login is available tomorrow.':'Record your field-work start time for today.')+'</span></div></section>';
+    }
+    function sessionElapsedMinutes(session){const start=Number(session&&session.loginEpochMs)||0;if(!start)return 0;const end=Number(session.logoutEpochMs)||Date.now();return Math.max(0,Math.floor((end-start)/60000));}
+    function formatDurationMinutes(value){const minutes=Math.max(0,Math.floor(Number(value)||0));return String(Math.floor(minutes/60)).padStart(2,"0")+":"+String(minutes%60).padStart(2,"0");}
+    function renderSelfDailyOverview(){
+      const overview=state.fieldEngineerOverview;
+      const attendance=overview&&overview.attendance||null;
+      const workSession=overview&&overview.workSession||state.workSession;
+      const statusText=overview?(String(attendance&&attendance.attendanceStatus||"").trim()||"Not entered"):(state.fieldEngineerOverviewLoading?"Loading":"Not loaded");
+      const statusClass=!overview||statusText==="Not entered"?"missing":statusText.toLowerCase()==="present"?"present":"away";
+      const name=String(overview&&overview.name||state.user&&state.user.fullName||"Field Engineer");
+      const base=String(overview&&overview.baseLocation||state.user&&state.user.baseLocation||"Base city not set");
+      const date=String(overview&&overview.date||todayDDMMYYYY());
+      const cell=(label,value)=>'<div class="self-overview-cell"><span class="self-overview-cell-label">'+esc(label)+'</span><span class="self-overview-cell-value">'+value+'</span></div>';
+      let overviewBody="";
+      if(overview){
+        const locations=Array.isArray(attendance&&attendance.locations)?attendance.locations.map(value=>String(value||"").trim()).filter(Boolean):[];
+        const locationText=locations.length?locations.join(" · "):"—";
+        const attendanceDealer=[attendance&&attendance.dealerName,attendance&&attendance.dealerCity].map(value=>String(value||"").trim()).filter(Boolean).join(" · ")||"—";
+        const loginTime=String(workSession&&workSession.loginTime||"Not Logged-In");
+        const duration=workSession&&workSession.status==="LOGGED_IN"?formatDurationMinutes(sessionElapsedMinutes(workSession)):workSession&&workSession.status==="LOGGED_OUT"?(workSession.duration||formatDurationMinutes(workSession.elapsedMinutes)):"00:00";
+        const punch=overview.latestDealerPunch;
+        const punchCount=Math.max(0,Number(overview.dealerPunchCount)||0);
+        const punchDealer=punch?[punch.dealerName,punch.dealerCity].map(value=>String(value||"").trim()).filter(Boolean).join(" · "):"";
+        const punchExtra=punchCount>1?'<span class="self-overview-more" title="'+(punchCount-1)+' additional dealer punch'+(punchCount===2?'':'es')+'">+'+(punchCount-1)+'</span>':'';
+        const punchValue=punch?esc(punch.time||"—")+(punchDealer?'<span class="self-overview-punch-dealer"> · '+esc(punchDealer)+'</span>':'')+punchExtra:"No Punch";
+        overviewBody='<div class="self-overview-grid">'+cell("Attendance",esc(statusText))+cell("Location",esc(locationText))+cell("Attendance Dealer",esc(attendanceDealer))+cell("Login",esc(loginTime))+cell("Dealer Punch",punchValue)+cell("Login Hours [HH:MM]",esc(duration))+'</div>';
+      }else{
+        overviewBody='<div class="self-overview-message" role="status">'+(state.fieldEngineerOverviewError?'Today’s overview could not be loaded. Use refresh to try again.':'Loading today’s field overview…')+'</div>';
+      }
+      const refreshDisabled=state.fieldEngineerOverviewLoading||state.fieldEngineerOverviewRefreshPending;
+      return '<section class="self-daily-overview" aria-label="My daily Field Engineer overview"><div class="self-overview-head"><div class="self-overview-heading"><div class="self-overview-title">My daily field overview</div><div class="self-overview-date">'+esc(date)+' · Updated every minute</div></div><div class="self-overview-actions"><span class="self-overview-status '+statusClass+'"><i aria-hidden="true"></i>'+esc(statusText)+'</span><button class="self-overview-refresh" type="button" data-refresh-field-overview title="Refresh today’s overview" aria-label="Refresh my daily overview" '+(refreshDisabled?'disabled':'')+'>↻</button></div></div><div class="self-overview-identity"><span class="self-overview-name" title="'+esc(name)+'">'+esc(name)+'</span><span class="self-overview-base">Base · '+esc(base)+'</span></div>'+overviewBody+(state.fieldEngineerOverviewError&&overview?'<div class="self-overview-error" role="status">Refresh failed; showing the last successful overview.</div>':'')+'</section>';
+    }
+    function renderHome(){
+      const menu=MENU_ITEMS.map((item,index)=>'<button class="menu-tile" type="button" data-page="'+esc(item.view)+'"><span class="menu-icon '+esc(item.color)+'">'+icon(item.icon)+'</span><span class="menu-copy"><span class="menu-title">'+esc(item.title)+'</span><span class="menu-subtitle">'+esc(item.subtitle)+'</span></span>'+icon("arrow")+'</button>').join("");
+      const taskCount=state.assignedTasks.filter(t=>t.status!=="Complete").length;
+      const attendanceLabel=state.attendanceRecord&&state.attendanceRecord.data?state.attendanceRecord.data.attendanceStatus:"Not entered";
+      const expenseMonth=currentMonthRange();
+      const monthTotalReady=state.monthlyExpenseMonthKey===expenseMonth.key;
+      const monthExpenseValue=monthTotalReady?"Rs "+formatMoney(state.monthlyExpenseTotal):state.monthlyExpenseLoading?"Loading…":"—";
+      const monthExpenseSub=state.monthlyExpenseError?(monthTotalReady?"Refresh failed · showing last total":"Monthly total unavailable"):monthTotalReady?(state.monthlyExpenseRecordCount?state.monthlyExpenseRecordCount+" expense record"+(state.monthlyExpenseRecordCount===1?"":"s")+" updated":"No expenses updated this month"):"Loading monthly total";
+      return '<section class="home-hero"><div class="hero-copy"><div class="hero-eyebrow">FIELD ENGINEER WORKSPACE</div><h1>Hello, '+esc((state.user&&state.user.fullName||"Engineer").split(" ")[0])+'</h1><p>Here’s your field day at a glance. Keep updates quick while you’re on the move.</p></div><div class="hero-tags"><span class="hero-tag">'+icon("calendar")+' '+esc(todayDDMMYYYY())+'</span><span class="hero-tag">'+icon("map-pin")+' '+esc(state.user&&state.user.baseLocation||"Base city not set")+'</span></div></section>'+renderSelfDailyOverview()+renderWorkSessionCard()+
+        '<div class="home-section-title"><div><h2>Quick menu</h2><p>Choose what you need to update or review</p></div></div><div class="menu-grid">'+menu+'</div>'+
+        '<div class="today-panel"><article class="today-card"><div class="today-label">Today’s attendance</div><div class="today-value">'+esc(attendanceLabel)+'</div><div class="today-sub">'+(state.attendanceRecord?"Updated "+esc(state.attendanceRecord.lastEditedAt||""):"Update once per day")+'</div></article><article class="today-card"><div class="today-label">Open manager tasks</div><div class="today-value">'+taskCount+'</div><div class="today-sub">Tasks not marked complete</div></article><article class="today-card"><div class="today-label">'+esc(expenseMonth.name)+' Expenses</div><div class="today-value">'+esc(monthExpenseValue)+'</div><div class="today-sub">'+esc(monthExpenseSub)+'</div></article></div>';
+    }
+    function render(){
+      const root=document.getElementById("pageRoot");
+      document.getElementById("topDate").textContent=todayDDMMYYYY();
+      if(!CONFIG.API_URL){root.innerHTML='<div class="demo-banner">'+icon("info")+'<span><b>Preview mode:</b> records and edits are saved only in this browser; they are not sent to Google Sheets.</span></div>'+renderContent();}
+      else root.innerHTML=renderContent();
+      root.focus({preventScroll:true});
+      if(state.page==="punch"&&state.geo)drawMap("dealerMap",[state.geo]);
+      if(state.page==="viewPunch"&&state.modalMapPoints.length)drawMap("punchListMap",state.modalMapPoints);
+    }
+    function renderContent(){
+      switch(state.page){
+        case "home": return renderHome();
+        case "allotted": return renderAllottedTasks();
+        case "attendance": return renderAttendancePage();
+        case "punch": return renderPunchPage();
+        case "dailyTasks": return renderDailyTasksPage();
+        case "expenses": return renderExpensesPage();
+        case "viewAttendance": return renderRangePage("Attendance");
+        case "viewPunch": return renderRangePage("DealerPunch");
+        case "viewTasks": return renderRangePage("DailyTasks");
+        case "viewExpenses": return renderRangePage("DailyExpenses");
+        case "taskCount": return renderTaskCountPage();
+        case "expenseApprovalStatus": return renderExpenseApprovalStatusPage();
+        case "monthlyTourPlan": return renderMonthlyTourPlanPage();
+        default:return renderHome();
+      }
+    }
+    function renderAllottedTasks(){
+      const content=state.loading?'<div class="loading"><span class="spin-dark"></span>Loading assigned tasks…</div>':state.assignedTasks.length?state.assignedTasks.map(renderAssignedTask).join(""):'<div class="empty-state"><div class="empty-icon">'+icon("list")+'</div><h3>No manager-assigned tasks</h3><p>New tasks assigned by your Zone Manager will appear here with priority and assignment time.</p></div>';
+      return renderPageHeader("Allotted tasks","Review manager instructions and send an update whenever the task status changes.",true)+content;
+    }
+    function renderAssignedTask(task){
+      const priority=String(task.priority||"Medium").toLowerCase();
+      return '<article class="assigned-card"><div class="assigned-top"><span class="priority '+esc(priority)+'">'+esc(task.priority||"Medium")+' priority</span>'+statusTag(task.status)+'</div><h2 class="assigned-title">'+esc(task.title||"Task assigned by your manager")+'</h2>'+(task.details?'<p class="assigned-desc">'+esc(task.details)+'</p>':'')+'<div class="assigned-meta"><span>Assigned by '+esc(task.assignedByName||"Zone Manager")+'</span><span>'+icon("clock")+' '+esc(task.assignedAt||"—")+'</span>'+(task.responseAt?'<span>Updated '+esc(task.responseAt)+'</span>':'')+'</div><div class="assigned-controls"><div class="field"><label class="field-label" for="status_'+esc(task.id)+'">Status</label><select id="status_'+esc(task.id)+'" class="select-control" data-assigned-status="'+esc(task.id)+'">'+["In-Progress","Complete","Pending"].map(x=>'<option'+(x===(task.status||"Pending")?' selected':'')+'>'+x+'</option>').join("")+'</select></div><div class="field"><label class="field-label" for="response_'+esc(task.id)+'">Your response</label><textarea id="response_'+esc(task.id)+'" class="textarea-control" maxlength="5000" data-assigned-response="'+esc(task.id)+'" placeholder="Add a progress note or completion details…">'+esc(task.response||"")+'</textarea></div></div><div class="assigned-save"><button class="primary" type="button" data-save-assigned="'+esc(task.id)+'">'+icon("check")+'<span>Save update</span></button></div></article>';
+    }
+    function statusTag(status){const val=status||"Pending";const cls=val==="Complete"?"green":val==="In-Progress"?"amber":"grey";return '<span class="tag '+cls+'">'+esc(val)+'</span>';}
+
+    function checkboxGroup(group,items,selected){const values=new Set(selected||[]);return '<div class="check-list">'+items.map((value,index)=>{const id=group+"_"+index;return '<label class="choice-chip" for="'+esc(id)+'"><input id="'+esc(id)+'" type="checkbox" name="'+esc(group)+'" value="'+esc(value)+'"'+(values.has(value)?' checked':'')+'><span>'+esc(value)+'</span></label>';}).join("")+'</div>';}
+    function radioOptions(name,items,selected){return '<div class="radio-row">'+items.map((value,index)=>{const id=name+"_"+index;return '<label class="choice-chip" for="'+esc(id)+'"><input id="'+esc(id)+'" type="radio" name="'+esc(name)+'" value="'+esc(value)+'"'+(selected===value?' checked':'')+'><span>'+esc(value)+'</span></label>';}).join("")+'</div>';}
+    function statusBanner(message,kind){return '<div class="status-banner '+(kind||"")+'">'+icon(kind==="warn"?"alert":kind==="info"?"info":"check")+'<span>'+message+'</span></div>';}
+    function renderAttendancePage(){
+      const record=state.attendanceRecord;const data=record&&record.data||{};
+      const current=state.attendanceDate||todayDDMMYYYY();
+      const notice=state.recordLoading&&state.recordLoadingType==="Attendance"&&state.recordLoadingDate===current?'<div class="loading"><span class="spin-dark"></span>Checking this date…</div>':record?statusBanner('<b>Attendance already updated for this date</b> Existing details are loaded below; update and save them if needed.',""):statusBanner('One attendance entry is allowed per engineer per date. Selecting a previously entered date loads the saved record for editing.','info');
+      return renderPageHeader("Update attendance","Record attendance, work location and planned activities for one date.",true)+notice+'<form id="attendanceForm"><section class="card"><div class="card-head"><div><h2>Attendance details</h2><p>All dates display as DD/MM/YYYY.</p></div><span class="tag">1 record / day</span></div><div class="card-body"><div class="field"><label class="field-label" for="attendanceDate">Date</label>'+datePicker("attendanceDate",current)+'</div><div class="field"><label class="field-label" for="attendanceStatus">Attendance <span class="required">*</span></label><select id="attendanceStatus" name="attendanceStatus" class="select-control" required><option value="">Choose attendance</option>'+ATTENDANCE_STATUSES.map(x=>'<option'+(x===data.attendanceStatus?' selected':'')+'>'+esc(x)+'</option>').join("")+'</select></div><div class="section-title">Location · choose all that apply</div>'+checkboxGroup("attendanceLocations",LOCATIONS,data.locations||[])+
+        '<div class="section-title">Visit type · choose all that apply</div>'+checkboxGroup("visitTypes",VISIT_TYPES,data.visitTypes||[])+
+        '<div class="section-title">Planned activities</div><div class="field-label">Visit Activities</div>'+checkboxGroup("visitActivities",VISIT_ACTIVITIES,selectedActivityLabels(data.plannedActivities,"Visit Activities"))+'<div style="height:10px"></div><div class="field-label">Other Activities</div>'+checkboxGroup("otherActivities",OTHER_ACTIVITIES,selectedActivityLabels(data.plannedActivities,"Other Activities"))+
+        '<div class="section-title">Dealer / notes</div><div class="field-grid"><div class="field"><label class="field-label" for="attDealerName">Dealer Name <span class="required">*</span></label><input id="attDealerName" class="control" name="dealerName" required maxlength="120" value="'+esc(data.dealerName||"")+'" placeholder="Enter dealer name"></div><div class="field"><label class="field-label" for="attDealerCity">Dealer City <span class="required">*</span></label><input id="attDealerCity" class="control" name="dealerCity" required maxlength="100" value="'+esc(data.dealerCity||"")+'" placeholder="Enter dealer city"></div><div class="field span-2"><label class="field-label" for="attComments">Comments <span class="required">*</span></label><textarea id="attComments" class="textarea-control" name="comments" required maxlength="5000" placeholder="Enter comments">'+esc(data.comments||"")+'</textarea></div></div></div></section><div class="form-actions"><button class="secondary" type="button" data-home>Cancel</button><button class="primary" type="submit">'+icon("check")+'<span>Save attendance</span></button></div></form>';
+    }
+    function selectedActivityLabels(values,group){return (values||[]).filter(v=>String(v).indexOf(group+": ")===0).map(v=>String(v).slice(group.length+2));}
+    function readActivitySelections(form){
+      const visit=Array.from(form.querySelectorAll('[name="visitActivities"]:checked')).map(el=>"Visit Activities: "+el.value);
+      const other=Array.from(form.querySelectorAll('[name="otherActivities"]:checked')).map(el=>"Other Activities: "+el.value);
+      return visit.concat(other);
+    }
+
+    function renderPunchPage(){
+      const geo=state.geo;const status=state.geoBusy?"Capturing current location…":geo?(geo.demo?"Demo coordinates ready":"GPS location captured"):(state.geoError||"Capture your location to enable the dealer punch.");
+      return renderPageHeader("Update dealer punch","Capture a dealer visit with the phone’s current GPS location and server timestamp.",true)+'<form id="punchForm"><section class="card"><div class="card-head"><div><h2>Dealer visit</h2><p>Location coordinates are captured by the device and cannot be edited.</p></div><span class="tag green">GPS punch</span></div><div class="card-body"><div class="field-grid"><div class="field"><label class="field-label" for="punchDealerName">Dealer name <span class="required">*</span></label><input id="punchDealerName" name="dealerName" class="control" required maxlength="120" value="'+esc(state.punchDraft&&state.punchDraft.dealerName||"")+'" placeholder="Enter dealer name"></div><div class="field"><label class="field-label" for="punchDealerCity">Dealer city <span class="required">*</span></label><input id="punchDealerCity" name="dealerCity" class="control" required maxlength="100" value="'+esc(state.punchDraft&&state.punchDraft.dealerCity||"")+'" placeholder="Enter dealer city"></div></div><div class="section-title">Current location</div><div id="dealerMap" class="map-panel">'+renderMapFallback(geo?geo.latitude:null,geo?geo.longitude:null,geo?"Current position":"Location not captured")+'</div><div class="location-status">'+icon("map-pin")+'<span>'+esc(status)+(geo?'<br><span class="map-coordinates">'+esc(Number(geo.latitude).toFixed(6))+', '+esc(Number(geo.longitude).toFixed(6))+'</span>':'')+'</span></div><div class="form-actions" style="position:static;box-shadow:none;margin:14px 0 0;padding:0;border:0;background:transparent"><button class="secondary" type="button" data-capture-location>'+icon("map-pin")+'<span>'+(geo?"Refresh GPS location":"Capture current location")+'</span></button>'+(CONFIG.API_URL?'':'<button class="quiet" type="button" data-demo-location>Use demo location</button>')+'</div><p class="field-hint">The address is reverse-geocoded using OpenStreetMap/Nominatim (no Google API key). If geocoding is unavailable, the coordinates are saved.</p></div></section><div class="form-actions"><button class="secondary" type="button" data-home>Cancel</button><button class="primary" type="submit" '+(!geo?'disabled':'')+'>'+icon("check")+'<span>Submit dealer punch</span></button></div></form>';
+    }
+    function renderMapFallback(lat,lon,title){return '<div class="map-fallback"><span class="pin">'+icon("map-pin")+'</span><strong>'+esc(title||"Map preview")+'</strong>'+(lat!=null&&lon!=null?'<span class="map-coordinates">'+Number(lat).toFixed(6)+', '+Number(lon).toFixed(6)+'</span>':'<span>Capture current location to show the map.</span>')+'</div><span class="map-attribution">© OpenStreetMap contributors</span>';}
+
+    function defaultTaskDraft(){return{activities:{},taskComments:""};}
+    function renderDailyTasksPage(){
+      const record=state.taskRecord;const data=state.taskDraft||record&&record.data||defaultTaskDraft();state.taskDraft=data;
+      const notice=state.recordLoading&&state.recordLoadingType==="DailyTasks"&&state.recordLoadingDate===state.taskDate?'<div class="loading"><span class="spin-dark"></span>Checking this date…</div>':record?statusBanner('<b>Tasks already updated for this date</b> Existing details are loaded below and can be edited.',""):statusBanner('One Daily Tasks record is allowed per engineer per date. Select another date to review or amend an earlier entry.','info');
+      const grouped=[...new Set(TASK_CATALOG.map(x=>x.category))].map(category=>'<section class="task-group"><h3 class="task-group-title">'+esc(category)+'</h3>'+TASK_CATALOG.filter(x=>x.category===category).map(config=>renderTaskTile(config,data.activities&&data.activities[config.key])).join("")+'</section>').join("");
+      const session=state.taskSession||{};const loginText=state.taskSessionLoading?"Loading…":session.loginTime||"Not Logged-In";const logoutText=state.taskSessionLoading?"Loading…":session.logoutTime||"Not Logged-Out";
+      return renderPageHeader("Update daily tasks","Record work performed and review the day’s automatically tracked login/logout times.",true)+notice+'<form id="dailyTasksForm"><section class="card"><div class="card-head"><div><h2>Daily task record</h2><p>Choose a date; a saved record can be updated any time.</p></div><span class="tag amber">1 record / day</span></div><div class="card-body"><div class="field"><label class="field-label" for="tasksDate">Date</label>'+datePicker("tasksDate",state.taskDate||todayDDMMYYYY())+'</div><div class="section-title">Work times · automatic</div><p class="field-hint">These times come from your LOGIN / LOGOUT session and cannot be edited here.</p><div class="field-grid"><div class="field"><label class="field-label" for="dailyLoginTime">Login time</label><input id="dailyLoginTime" class="control" type="text" value="'+esc(loginText)+'" readonly aria-readonly="true"></div><div class="field"><label class="field-label" for="dailyLogoutTime">Logout time</label><input id="dailyLogoutTime" class="control" type="text" value="'+esc(logoutText)+'" readonly aria-readonly="true"></div></div><div class="section-title">Performed tasks · choose a tile to add details</div>'+grouped+'<div class="section-title">Day summary</div><div class="field"><label class="field-label" for="taskComments">Task Comment <span class="required">*</span></label><textarea id="taskComments" class="textarea-control" name="taskComments" required maxlength="5000" placeholder="Enter a task comment">'+esc(data.taskComments||"")+'</textarea></div></div></section><div class="form-actions"><button class="secondary" type="button" data-home>Cancel</button><button class="primary" type="submit">'+icon("check")+'<span>Save daily tasks</span></button></div></form>';
+    }
+    function renderTaskTile(config,value){
+      const has=activityHasValue(value);const count=config.kind==="repeat"?meaningfulEntryCount(value&&value.entries):config.countField?Number(value&&value[config.countField])||0:0;
+      return '<article class="task-tile"><label class="task-tile-head"><input type="checkbox" data-task-toggle="'+esc(config.key)+'"'+(has?' checked':'')+'><span class="task-tile-name">'+esc(config.label)+'</span><span class="task-count-pill">'+count+'</span></label><div class="task-tile-body '+(has?'':'hidden')+'" data-task-detail="'+esc(config.key)+'">'+renderTaskDetail(config,value||{})+'</div></article>';
+    }
+    function activityHasValue(value){if(!value||typeof value!=="object")return false;if(value.selected)return true;if(Array.isArray(value.entries))return value.entries.length>0||value.entries.some(row=>Object.values(row||{}).some(x=>String(x||"").trim()!==""));return Object.keys(value).some(key=>key!=="selected");}
+    function renderTaskDetail(config,value){
+      if(config.kind==="repeat"){
+        const entries=Array.isArray(value.entries)&&value.entries.length?value.entries:[{}];
+        const countLabel=config.countLabel||"Count";
+        return '<div class="summary-count">'+esc(countLabel)+': '+entries.filter(row=>Object.values(row||{}).some(x=>String(x||"").trim()!=="")).length+' entered</div>'+entries.map((entry,index)=>'<div class="entry-card" data-entry-row="'+esc(config.key)+'"><div class="entry-head"><span>'+esc(countLabel.replace(" Count","").replace(" Count","")+' '+(index+1))+'</span><button class="remove-entry" type="button" data-task-remove="'+esc(config.key)+'" data-entry-index="'+index+'" aria-label="Remove entry">'+icon("trash")+'</button></div><div class="entry-fields">'+config.fields.map(field=>renderTaskField(config.key,field,entry[field.key],index)).join("")+'</div></div>').join("")+'<button class="secondary add-entry" type="button" data-task-add="'+esc(config.key)+'">'+icon("plus")+'<span>'+esc(config.addLabel||"Add row")+'</span></button>';
+      }
+      if(config.kind==="weekly")return '<div class="field-grid"><div class="field"><label class="field-label">Collected Data Count</label>'+taskInput(config.key,"collectedDataCount",value.collectedDataCount,"number")+'</div><div class="field span-2"><label class="field-label">Dealers Name</label>'+taskTextarea(config.key,"dealerNames",value.dealerNames,"Add dealer names, one per line")+'</div></div>';
+      if(config.kind==="ejc")return '<div class="field-grid"><div class="field"><label class="field-label">eJC Count</label>'+taskInput(config.key,"ejcCount",value.ejcCount,"number")+'</div><div class="field"><label class="field-label">No. of Dealers Validated</label>'+taskInput(config.key,"dealersValidated",value.dealersValidated,"number")+'</div><div class="field span-2"><label class="field-label">eJC No</label>'+taskTextarea(config.key,"ejcNumbers",value.ejcNumbers,"Enter eJC numbers")+'</div></div>';
+      if(config.kind==="reassessmentCalls")return '<div class="field-grid"><div class="field"><label class="field-label">Call Count</label>'+taskInput(config.key,"callCount",value.callCount,"number")+'</div><div class="field span-2"><label class="field-label">Dealer Name</label>'+taskTextarea(config.key,"dealerNames",value.dealerNames,"Enter dealer names")+'</div><div class="field span-2"><label class="field-label">Comments</label>'+taskTextarea(config.key,"comments",value.comments,"Comments")+'</div></div>';
+      if(config.kind==="callsSales")return '<div class="field-grid"><div class="field"><label class="field-label">Call Count</label>'+taskInput(config.key,"callCount",value.callCount,"number")+'</div><div class="field"><label class="field-label">'+esc(config.salesLabel)+'</label>'+taskInput(config.key,config.salesField,value[config.salesField],"number")+'</div></div>';
+      if(config.kind==="callsComments")return '<div class="field-grid"><div class="field"><label class="field-label">Call Count</label>'+taskInput(config.key,"callCount",value.callCount,"number")+'</div><div class="field span-2"><label class="field-label">Comments</label>'+taskTextarea(config.key,"comments",value.comments,"Comments")+'</div></div>';
+      return '<div class="field"><label class="field-label">Comments</label>'+taskTextarea(config.key,"comments",value.comments,"Add details")+'</div>';
+    }
+    function renderTaskField(taskKey,field,value,index){const id=taskKey+"_"+field.key+"_"+index;const valueText=esc(value==null?"":value);const label='<label class="field-label" for="'+esc(id)+'">'+esc(field.label)+'</label>';let control;if(field.type==="textarea")control='<textarea id="'+esc(id)+'" class="textarea-control" data-entry-field="'+esc(field.key)+'" maxlength="2000" placeholder="'+esc(field.label)+'">'+valueText+'</textarea>';else control='<input id="'+esc(id)+'" class="control" data-entry-field="'+esc(field.key)+'" type="'+(field.type==="number"?"number":"text")+'" '+(field.type==="number"?'min="0" step="any" ':'')+'maxlength="120" value="'+valueText+'" placeholder="'+esc(field.label)+'">';return '<div class="field '+(field.span?'span-2':'')+'">'+label+control+'</div>';}
+    function taskInput(key,field,value,type){return '<input class="control" data-task-input="'+esc(key)+'.'+esc(field)+'" type="'+(type==="number"?"number":"text")+'" '+(type==="number"?'min="0" step="1" ':'')+'value="'+esc(value==null?"":value)+'" placeholder="'+(type==="number"?"0":"Enter value")+'">';}
+    function taskTextarea(key,field,value,placeholder){return '<textarea class="textarea-control" data-task-input="'+esc(key)+'.'+esc(field)+'" maxlength="3000" placeholder="'+esc(placeholder||"")+'">'+esc(value||"")+'</textarea>';}
+    function collectDailyTaskForm(){
+      const form=document.getElementById("dailyTasksForm");if(!form)return state.taskDraft||defaultTaskDraft();
+      const activities={};
+      TASK_CATALOG.forEach(config=>{
+        const toggle=form.querySelector('[data-task-toggle="'+CSSesc(config.key)+'"]');if(!toggle||!toggle.checked)return;
+        if(config.kind==="repeat"){
+          const detail=form.querySelector('[data-task-detail="'+CSSesc(config.key)+'"]');
+          activities[config.key]={selected:true,entries:Array.from(detail.querySelectorAll('[data-entry-row]')).map(row=>{const entry={};row.querySelectorAll('[data-entry-field]').forEach(input=>entry[input.dataset.entryField]=input.value.trim());return entry;})};
+        }else{
+          const value={};form.querySelectorAll('[data-task-input^="'+config.key+'."]').forEach(input=>{const field=input.dataset.taskInput.split(".")[1];value[field]=input.type==="number"?(input.value===""?0:Number(input.value)):input.value.trim();});
+          value.selected=true;activities[config.key]=value;
+        }
+      });
+      const comments=form.querySelector('[name="taskComments"]');
+      state.taskDate=readDatePicker("tasksDate")||state.taskDate;
+      return {activities,taskComments:comments?comments.value.trim():""};
+    }
+
+    function renderExpensesPage(){
+      const date=state.expenseDate||todayDDMMYYYY();
+      if(state.expenseLoading)return renderPageHeader("Update daily expenses","Expense records are linked to your saved daily tasks and attendance.",true)+'<div class="loading"><span class="spin-dark"></span>Checking tasks and attendance…</div>';
+      const tasks=state.expenseTasks,attendance=state.expenseAttendance;
+      if(!tasks)return renderPageHeader("Update daily expenses","Expense records are linked to your saved daily tasks and attendance.",true)+'<div class="card"><div class="card-body"><div class="field"><label class="field-label" for="expensesDate">Date</label>'+datePicker("expensesDate",date)+'</div>'+statusBanner('<b>Please enter Tasks to proceed further</b> — daily tasks are required for the selected date. Expense entry is stopped until tasks are saved.','warn')+'<button class="primary" type="button" data-page="dailyTasks">Go to Daily Tasks</button></div></div>';
+      if(!attendance)return renderPageHeader("Update daily expenses","Expense records are linked to your saved daily tasks and attendance.",true)+'<div class="card"><div class="card-body"><div class="field"><label class="field-label" for="expensesDate">Date</label>'+datePicker("expensesDate",date)+'</div>'+statusBanner('<b>Please update Attendance first</b> so FST can use the day’s non-editable Location for expenses.','warn')+'<button class="primary" type="button" data-page="attendance">Go to Attendance</button></div></div>';
+      const locations=attendance.data&&Array.isArray(attendance.data.locations)?attendance.data.locations:[];
+      const hasLocal=locations.includes("Local");const hasOut=locations.includes("Outstation")||locations.includes("Travelling");
+      if(!hasLocal&&!hasOut)return renderPageHeader("Update daily expenses","Expense records are linked to your saved daily tasks and attendance.",true)+'<div class="card"><div class="card-body"><div class="field"><label class="field-label" for="expensesDate">Date</label>'+datePicker("expensesDate",date)+'</div>'+statusBanner('No Location is selected in Attendance for this date. Update Attendance, then return here.','warn')+'<button class="primary" type="button" data-page="attendance">Go to Attendance</button></div></div>';
+      const record=state.expenseRecord;const data=state.expenseDraft||record&&record.data||{};state.expenseDraft=data;
+      const notice=record?statusBanner('<b>Expense already updated for this date</b> Existing fields and attachments are loaded below; edit and save to update.',''):statusBanner('Expenses are allowed once per date. Location is read from Attendance and cannot be edited here.','info');
+      const savedTravel=Array.isArray(data.travelAttachments)?data.travelAttachments:[];const savedLodging=Array.isArray(data.lodgingAttachments)?data.lodgingAttachments:[];
+      const localGroup=hasLocal?'<section class="expense-group"><div class="expense-group-head"><strong># Local travel</strong><span class="tag grey">Local</span></div><div class="field"><label class="field-label">Local Travel Expense <span class="required">*</span></label>'+moneyInput("localTravelExpense",data.localTravelExpense,300)+'</div></section>':'';
+      const outGroup=hasOut?'<section class="expense-group"><div class="expense-group-head"><strong>## Outstation / travelling</strong><span class="tag amber">Outstation</span></div><div class="field-grid"><div class="field"><label class="field-label">City 1</label><input class="control" name="city1" maxlength="100" value="'+esc(data.city1||"")+'" placeholder="Optional"></div><div class="field"><label class="field-label">City 2</label><input class="control" name="city2" maxlength="100" value="'+esc(data.city2||"")+'" placeholder="Optional"></div><div class="field"><label class="field-label">Day end city</label><input class="control" name="dayEndCity" maxlength="100" value="'+esc(data.dayEndCity||"")+'" placeholder="City"></div><div class="field"><label class="field-label">Outstation Travel Expense</label>'+moneyInput("outstationTravelExpense",data.outstationTravelExpense,null)+'</div><div class="field"><label class="field-label">Lodging Expenses · max Rs 1300</label>'+moneyInput("lodgingExpenses",data.lodgingExpenses,1300)+'</div><div class="field"><label class="field-label">Outstation Food Expenses · Max Rs 500</label>'+moneyInput("outstationFoodExpense",data.outstationFoodExpense==null?500:data.outstationFoodExpense,500)+'</div><div class="field"><label class="field-label">Outstation local travel · max Rs 300</label>'+moneyInput("outstationLocalTravel",data.outstationLocalTravel,300)+'</div></div><div class="field"><label class="field-label">Attach travel ticket · up to 3</label>'+attachmentPicker("Travel",savedTravel,state.expenseTravelFiles,3)+'</div><div class="field"><label class="field-label">Attach lodging bill · 1 file</label>'+attachmentPicker("Lodging",savedLodging,state.expenseLodgingFiles,1)+'</div></section>':'';
+      return renderPageHeader("Update daily expenses","Add your travel and lodging costs. FST checks daily tasks and attendance before allowing a claim.",true)+notice+'<form id="expenseForm"><section class="card"><div class="card-head"><div><h2>Daily expense record</h2><p>Amounts are in Indian rupees (Rs).</p></div><span class="tag">1 record / day</span></div><div class="card-body"><div class="field"><label class="field-label" for="expensesDate">Date</label>'+datePicker("expensesDate",date)+'</div><div class="field"><label class="field-label">Location · from Attendance</label><div class="location-readonly">'+locations.map(x=>'<span class="tag '+(x==="Local"?"green":"amber")+'">'+esc(x)+'</span>').join("")+'<span class="subtle">Read-only</span></div></div><div class="section-title">Expense details</div><div class="field"><label class="field-label">Day Start City <span class="required">*</span></label><input class="control" name="dayStartCity" required maxlength="100" value="'+esc(data.dayStartCity||"")+'" placeholder="Enter day start city"></div>'+localGroup+outGroup+'<section class="card" style="margin-top:11px"><div class="card-body"><div class="field"><label class="field-label">Travel conveyance comments</label><textarea class="textarea-control" name="travelConveyanceComments" maxlength="5000" placeholder="Optional details">'+esc(data.travelConveyanceComments||"")+'</textarea></div><div class="field"><label class="field-label">Travel Comments <span class="required">*</span></label><textarea class="textarea-control" name="travelComments" required maxlength="5000" placeholder="Enter travel comments">'+esc(data.travelComments||"")+'</textarea></div></div></section></div></section><div class="form-actions"><button class="secondary" type="button" data-home>Cancel</button><button class="primary" type="submit">'+icon("check")+'<span>Save expenses</span></button></div></form>';
+    }
+    function moneyInput(name,value,max){return '<div class="currency-input"><span>Rs</span><input class="control" type="number" min="0" step="0.01"'+(max!=null?' max="'+max+'"':'')+' name="'+esc(name)+'" value="'+esc(value==null?"":value)+'" placeholder="0.00" data-money="'+esc(name)+'"></div>'+(max!=null?'<p class="field-hint">Maximum Rs '+max+'.</p>':'');}
+    function attachmentPicker(category,saved,pending,max){const total=(saved||[]).length+(pending||[]).length;const inputId=category==="Travel"?"travelFiles":"lodgingFiles";const multiple=category==="Travel"?' multiple':'';return '<div class="file-picker"><input id="'+inputId+'" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"'+multiple+' data-attachment-input="'+category+'" '+(total>=max?'disabled':'')+'><p class="field-hint">JPG, PNG, WebP or PDF · up to 2 MB each. Photos are resized before upload. '+total+'/'+max+' attached.</p><div id="'+inputId+'List" class="file-list">'+(saved||[]).map(x=>'<div class="attached-file">'+icon("check")+'<span>'+esc(x.fileName||"Saved in Drive")+'</span></div>').join("")+(pending||[]).map((x,index)=>'<div class="file-item">'+icon("clipboard")+'<span style="flex:1">'+esc(x.name)+' · '+formatBytes(x.size)+'</span><button class="remove-entry" type="button" data-remove-file="'+category+'" data-file-index="'+index+'" aria-label="Remove attachment">'+icon("trash")+'</button></div>').join("")+'</div></div>';}
+    function readExpenseForm(){const f=document.getElementById("expenseForm");if(!f)return null;const val=name=>{const el=f.querySelector('[name="'+name+'"]');return el?el.value.trim():""};return{dayStartCity:val("dayStartCity"),city1:val("city1"),city2:val("city2"),dayEndCity:val("dayEndCity"),localTravelExpense:val("localTravelExpense"),outstationTravelExpense:val("outstationTravelExpense"),lodgingExpenses:val("lodgingExpenses"),outstationFoodExpense:val("outstationFoodExpense"),outstationLocalTravel:val("outstationLocalTravel"),travelConveyanceComments:val("travelConveyanceComments"),travelComments:val("travelComments")};}
+
+    function renderRangePage(type){
+      const map={Attendance:{title:"View attendance",subtitle:"Choose a date range, then tap a date to review its attendance details."},DealerPunch:{title:"View dealer punch",subtitle:"Review dealer visits and open a date to see all punches on the map."},DailyTasks:{title:"View tasks",subtitle:"Review daily task entries and tap a date for the full activity summary."},DailyExpenses:{title:"View expenses",subtitle:"Review expense totals and tap a date for the full expense details."}}[type];
+      const from=state.rangeFrom||firstDayOfCurrentMonth(),to=state.rangeTo||todayDDMMYYYY();
+      const range= '<div class="range-bar"><div class="field"><label class="field-label" for="rangeFrom">From date</label>'+datePicker("rangeFrom",from)+'</div><div class="field"><label class="field-label" for="rangeTo">To date</label>'+datePicker("rangeTo",to)+'</div><button class="primary" type="button" data-apply-range="'+esc(type)+'">Apply</button></div>';
+      if(state.rangeLoading)return renderPageHeader(map.title,map.subtitle,true)+range+'<div class="loading"><span class="spin-dark"></span>Loading records…</div>';
+      const rows=state.rangeRecords;
+      const expenseSummary=type==="DailyExpenses"&&rows.length?'<div class="report-total"><strong>Total Expenses Value</strong><strong>Rs '+formatMoney(rows.reduce((sum,record)=>sum+sumExpenses(record.data||{}),0))+'</strong></div>':'';
+      return renderPageHeader(map.title,map.subtitle,true)+range+expenseSummary+(rows.length?renderRecordRows(type,rows):'<div class="empty-state"><div class="empty-icon">'+icon(type==="DealerPunch"?"map-pin":"list")+'</div><h3>No records in this date range</h3><p>When you submit '+esc(type=== "DealerPunch"?"dealer punches":type.toLowerCase()+" entries")+', they will appear here.</p></div>');
+    }
+    function renderRecordRows(type,rows){
+      if(type==="DealerPunch"){
+        const byDate={};rows.forEach(p=>{(byDate[p.date]||(byDate[p.date]=[])).push(p);});
+        const dates=Object.keys(byDate).sort((a,b)=>dateKey(b).localeCompare(dateKey(a)));
+        return '<div class="record-list">'+dates.map(date=>'<button class="record-row" type="button" data-punch-date="'+esc(date)+'"><span><span class="record-date">'+esc(date)+'</span><span class="record-sub">'+byDate[date].length+' dealer '+(byDate[date].length===1?"punch":"punches")+'</span></span><span class="record-value">'+byDate[date].length+' visits</span>'+icon("arrow")+'</button>').join("")+'</div>';
+      }
+      return '<div class="record-list">'+rows.map(record=>{
+        let value="";let sub="";let timeDetails="";
+        if(type==="Attendance"){value=record.data.attendanceStatus||"—";sub=(record.data.locations||[]).join(", ")||"No location selected";timeDetails='<span class="record-sub">LOGIN TIME: '+esc(record.loginTime||record.data.loginTime||"Not Logged-In")+' · LOGOUT TIME: '+esc(record.logoutTime||record.data.logoutTime||"Not Logged-Out")+'</span>';}
+        if(type==="DailyTasks"){value=Array.isArray(record.location)?record.location.join(", "):((record.data.location||[]).join(", ")||"—");sub=activeTaskCount(record.data.activities)+" task types";}
+        if(type==="DailyExpenses"){value="Rs "+formatMoney(sumExpenses(record.data));sub=(record.data.location||[]).join(", ")||"Location not recorded";}
+        return '<button class="record-row" type="button" data-record-id="'+esc(record.id)+'" data-record-type="'+esc(type)+'"><span><span class="record-date">'+esc(record.date)+'</span><span class="record-sub">'+esc(sub)+'</span>'+timeDetails+'</span><span class="record-value">'+esc(value)+'</span>'+icon("arrow")+'</button>';
+      }).join("")+'</div>';
+    }
+    function renderApprovalPunchDetails(punches){if(!Array.isArray(punches)||!punches.length)return '<span class="subtle">No dealer punch</span>';return '<div class="approval-punch-details">'+punches.map(p=>'<div><b>'+esc(p.dealerName||"Dealer")+'</b> · '+esc(p.dealerCity||"")+'<br><span>Time: '+esc(p.punchTime||"")+' · GPS: '+esc(p.coordinates||"")+'</span><br><span>Address: '+esc(p.address||"Address unavailable")+'</span></div>').join("")+'</div>';}
+    function tourPlanStatusMarkup(status){const value=String(status||"");const cls=value==="Approved"?"green":value==="Rejected"?"red":value?"amber":"grey";return value?'<span class="tag '+cls+'">'+esc(value)+'</span>':'<span class="subtle">—</span>';}
+    function renderMonthlyTourPlanPage(){
+      const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const rows=state.tourPlanRows||[];
+      const tableRows=rows.map((row,index)=>{
+        const location=String(row.location||"").toUpperCase();
+        const required=location==="LOCAL"||location==="OUTSTATION";
+        const requiredAttr=required?' required aria-required="true"':' aria-required="false"';
+        const requiredNote=required?" (required for selected location)":"";
+        return '<tr><td class="nowrap">'+esc(row.date)+'</td><td class="nowrap">'+esc(row.day)+'</td><td><select class="select-control" style="min-width:120px;min-height:38px;font-size:11px" data-tour-plan-index="'+index+'" data-tour-plan-field="location" aria-label="Location for '+esc(row.date)+'"><option value="">Choose</option><option value="LOCAL"'+(location==="LOCAL"?' selected':'')+'>LOCAL</option><option value="OUTSTATION"'+(location==="OUTSTATION"?' selected':'')+'>OUTSTATION</option></select></td><td><input class="control" style="min-width:130px;min-height:38px;font-size:11px" maxlength="120"'+requiredAttr+' value="'+esc(row.city)+'" data-tour-plan-index="'+index+'" data-tour-plan-field="city" aria-label="'+esc("City for "+row.date+requiredNote)+'"></td><td><input class="control" style="min-width:150px;min-height:38px;font-size:11px" maxlength="160"'+requiredAttr+' value="'+esc(row.dealer)+'" data-tour-plan-index="'+index+'" data-tour-plan-field="dealer" aria-label="'+esc("Dealer for "+row.date+requiredNote)+'"></td><td><textarea class="textarea-control" style="min-width:220px;min-height:52px;font-size:11px" maxlength="5000"'+requiredAttr+' data-tour-plan-index="'+index+'" data-tour-plan-field="taskPlan" aria-label="'+esc("Task plan for "+row.date+requiredNote)+'">'+esc(row.taskPlan)+'</textarea></td><td data-tour-plan-status-cell>'+tourPlanStatusMarkup(row.approvalStatus)+'</td><td data-tour-plan-approved-by-cell>'+esc(row.approvedBy||"")+'</td><td class="nowrap" data-tour-plan-approved-date-cell>'+esc(row.approvedDate||"")+'</td></tr>';
+      }).join("");
+      const table=state.tourPlanLoading?'<div class="loading"><span class="spin-dark"></span>Loading the monthly tour plan…</div>':'<div class="card"><div class="card-head"><div><h2>'+esc(months[state.tourPlanMonth-1])+' '+esc(state.tourPlanYear)+' tour plan</h2><p>For any date with LOCAL or OUTSTATION selected, City, Dealer and Task Plan are required. Saving an unchanged approved plan keeps its approval.</p></div><span class="tag amber">'+rows.length+' calendar days</span></div><div class="card-body" style="padding:0;overflow-x:auto"><table class="report-table" style="min-width:1120px"><thead><tr><th>Date</th><th>Day</th><th>Location</th><th>City</th><th>Dealer</th><th>Task Plan</th><th>Approval Status</th><th>Approved By</th><th>Approved Date</th></tr></thead><tbody>'+tableRows+'</tbody></table></div><div class="card-body" style="display:flex;justify-content:flex-end;padding-top:12px"><button class="primary" type="submit" data-submit-tour-plan '+(state.tourPlanSaving?'disabled':'')+'>'+icon("check")+'<span>'+(state.tourPlanSaving?'Submitting…':'Submit monthly tour plan')+'</span></button></div></div>';
+      return renderPageHeader("Update Monthly Tour Plan","Plan your locations, dealers and tasks. A selected location requires all three fields for that date.",true)+'<div class="month-filters"><div class="field"><label class="field-label" for="tourPlanYear">Year</label><select id="tourPlanYear" class="select-control">'+[2026,2027,2028,2029].map(y=>'<option value="'+y+'"'+(y===Number(state.tourPlanYear)?' selected':'')+'>'+y+'</option>').join("")+'</select></div><div class="field"><label class="field-label" for="tourPlanMonth">Month</label><select id="tourPlanMonth" class="select-control">'+months.map((m,i)=>'<option value="'+(i+1)+'"'+(i+1===Number(state.tourPlanMonth)?' selected':'')+'>'+m+'</option>').join("")+'</select></div></div>'+(state.tourPlanError?'<div class="status-banner warn">'+icon("alert")+'<span>'+esc(state.tourPlanError)+'</span></div>':'')+'<form id="monthlyTourPlanForm">'+table+'</form>';
+    }
+    function validateMonthlyTourPlanRows(){
+      const requiredFields=[{key:"city",label:"City"},{key:"dealer",label:"Dealer"},{key:"taskPlan",label:"Task Plan"}];
+      const rows=state.tourPlanRows||[];
+      for(let index=0;index<rows.length;index++){
+        const row=rows[index]||{};
+        const location=String(row.location||"").toUpperCase();
+        if(location!=="LOCAL"&&location!=="OUTSTATION")continue;
+        const missing=requiredFields.find(field=>!String(row[field.key]||"").trim());
+        if(!missing)continue;
+        const message=String(row.date||"Selected date")+": "+missing.label+" is required when Location is "+location+".";
+        state.tourPlanError=message;
+        showToast(message,"error");
+        const target=document.querySelector('[data-tour-plan-index="'+index+'"][data-tour-plan-field="'+missing.key+'"]');
+        if(target){if(typeof target.scrollIntoView==="function")target.scrollIntoView({block:"center"});if(typeof target.focus==="function")target.focus();}
+        return false;
+      }
+      return true;
+    }
+    function updateMonthlyTourPlanField(input){
+      const index=Number(input.dataset.tourPlanIndex);const field=input.dataset.tourPlanField;const row=state.tourPlanRows[index];
+      if(!row||!["location","city","dealer","taskPlan"].includes(field))return;
+      row[field]=String(input.value||"").trim();state.tourPlanDirty=true;
+      const tr=input.closest("tr");
+      if(field==="location"&&tr){
+        const required=row.location==="LOCAL"||row.location==="OUTSTATION";
+        ["city","dealer","taskPlan"].forEach(key=>{const control=tr.querySelector('[data-tour-plan-field="'+key+'"]');if(control){control.required=required;control.setAttribute("aria-required",required?"true":"false");}});
+      }
+      const original=state.tourPlanOriginal[index]||{};
+      const changed=["location","city","dealer","taskPlan"].some(key=>String(row[key]||"")!==String(original[key]||""));
+      const hasContent=Boolean(String(row.city||"").trim()||String(row.dealer||"").trim()||String(row.taskPlan||"").trim());
+      row.approvalStatus=!hasContent?"":changed?"Yet to Approve":(original.approvalStatus||row.approvalStatus||"Yet to Approve");
+      row.approvedBy=changed?"":(original.approvedBy||"");row.approvedDate=changed?"":(original.approvedDate||"");
+      const status=tr&&tr.querySelector("[data-tour-plan-status-cell]");const by=tr&&tr.querySelector("[data-tour-plan-approved-by-cell]");const date=tr&&tr.querySelector("[data-tour-plan-approved-date-cell]");
+      if(status)status.innerHTML=tourPlanStatusMarkup(row.approvalStatus);if(by)by.textContent=row.approvedBy;if(date)date.textContent=row.approvedDate;
+    }
+    async function loadMonthlyTourPlan(){const year=Number(state.tourPlanYear),month=Number(state.tourPlanMonth);state.tourPlanLoading=true;state.tourPlanError="";render();try{const result=await apiRequest("getEngineerMonthlyTourPlan",{year,month});if(state.page==="monthlyTourPlan"&&state.tourPlanYear===year&&state.tourPlanMonth===month){const report=result.report||{};state.tourPlanRows=report.rows||[];state.tourPlanOriginal=clone(state.tourPlanRows);state.tourPlanDirty=false;}}catch(error){if(state.page==="monthlyTourPlan"&&state.tourPlanYear===year&&state.tourPlanMonth===month){state.tourPlanRows=[];state.tourPlanOriginal=[];state.tourPlanError=error.message||"Could not load the monthly tour plan.";}}finally{if(state.page==="monthlyTourPlan"&&state.tourPlanYear===year&&state.tourPlanMonth===month){state.tourPlanLoading=false;render();}}}
+    async function saveMonthlyTourPlan(event){
+      event.preventDefault();
+      if(state.tourPlanLoading){showToast("Wait for the selected month to finish loading.","error");return;}
+      state.tourPlanError="";
+      if(!validateMonthlyTourPlanRows()){render();return;}
+      const button=document.querySelector("[data-submit-tour-plan]");const label=icon("check")+'<span>Submit monthly tour plan</span>';
+      state.tourPlanSaving=true;setBusy(button,true,label);
+      try{
+        const result=await apiRequest("saveEngineerMonthlyTourPlan",{year:state.tourPlanYear,month:state.tourPlanMonth,rows:state.tourPlanRows.map(row=>({date:row.date,location:row.location,city:row.city,dealer:row.dealer,taskPlan:row.taskPlan}))});
+        state.tourPlanRows=result.rows||[];state.tourPlanOriginal=clone(state.tourPlanRows);state.tourPlanDirty=false;state.tourPlanError="";
+        showToast("Monthly tour plan submitted for "+MONTH_NAMES[state.tourPlanMonth-1]+" "+state.tourPlanYear+".");
+      }catch(error){state.tourPlanError=error.message||"Could not submit the monthly tour plan.";showToast(state.tourPlanError,"error");}
+      finally{state.tourPlanSaving=false;if(state.page==="monthlyTourPlan")render();}
+    }
+
+    function renderExpenseApprovalStatusPage(){const rows=state.approvalRows;const months=["January","February","March","April","May","June","July","August","September","October","November","December"];const content=state.approvalLoading?'<div class="loading"><span class="spin-dark"></span>Loading expense approval status…</div>':rows.length?'<div class="card"><div class="card-head"><div><h2>Monthly submitted expenses</h2><p>Only expenses entered for Present days are listed. Status is updated by your Zone Manager.</p></div><span class="tag">'+rows.length+' record'+(rows.length===1?'':'s')+'</span></div><div class="card-body" style="padding:0;overflow-x:auto"><table class="report-table approval-report-table"><thead><tr><th>Status</th><th>Date</th><th>Day</th><th>Attendance</th><th>Location</th><th>Task Comments</th><th>Total Expenses</th><th>Local Travel Expense</th><th>Outstation Travel Expense</th><th>Lodging Expenses</th><th>Outstation Food Expenses</th><th>Outstation Local Travel</th><th>Travel Comments</th><th>Dealer Punch Details</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><span class="tag '+(r.status==="Approved"?'green':r.status==="Rejected"?'red':'amber')+'">'+esc(r.status||"Pending")+'</span></td><td class="nowrap">'+esc(r.date)+'</td><td>'+esc(r.day)+'</td><td>'+esc(r.attendance)+'</td><td>'+esc(r.location||"")+'</td><td>'+esc(r.taskComments||"")+'</td><td class="nowrap">Rs '+formatMoney(r.totalExpenses)+'</td><td class="nowrap">Rs '+formatMoney(r.localTravelExpense)+'</td><td class="nowrap">Rs '+formatMoney(r.outstationTravelExpense)+'</td><td class="nowrap">Rs '+formatMoney(r.lodgingExpenses)+'</td><td class="nowrap">Rs '+formatMoney(r.outstationFoodExpense)+'</td><td class="nowrap">Rs '+formatMoney(r.outstationLocalTravel)+'</td><td>'+esc(r.travelComments||"")+'</td><td>'+renderApprovalPunchDetails(r.dealerPunches)+'</td></tr>').join("")+'</tbody></table></div></div>':'<div class="empty-state"><div class="empty-icon">'+icon("wallet")+'</div><h3>No submitted expenses for this month</h3><p>Expenses appear here after you submit a Daily Expenses record for a Present day.</p></div>';return renderPageHeader("Expenses Approval Status","Monthly approval status for your submitted expense records.",true)+'<div class="month-filters"><div class="field"><label class="field-label" for="approvalYear">Year</label><select id="approvalYear" class="select-control">'+[2026,2027,2028,2029].map(y=>'<option value="'+y+'"'+(y===Number(state.approvalYear)?' selected':'')+'>'+y+'</option>').join("")+'</select></div><div class="field"><label class="field-label" for="approvalMonth">Month</label><select id="approvalMonth" class="select-control">'+months.map((m,i)=>'<option value="'+(i+1)+'"'+(i+1===Number(state.approvalMonth)?' selected':'')+'>'+m+'</option>').join("")+'</select></div><button class="primary" type="button" data-run-approval-report>'+icon("calendar")+'<span>Run report</span></button></div><div class="report-total"><strong>Total Expenses Value</strong><strong>Rs '+formatMoney(state.approvalTotal)+'</strong></div>'+content;}
+    function renderTaskCountPage(){
+      const rows=state.countRows;const year=Number(state.countYear)||2026;const month=Number(state.countMonth)||1;const grandTotal=rows.reduce((sum,row)=>sum+(Number(row.count)||0),0);
+      const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const table=state.rangeLoading?'<div class="loading"><span class="spin-dark"></span>Calculating totals…</div>':rows.length?'<div class="card"><div class="card-head"><div><h2>'+esc(months[month-1])+' '+year+'</h2><p>Counts are summed from the daily task count fields.</p></div><span class="tag amber">Monthly</span></div><div class="card-body" style="padding:0"><table class="report-table"><thead><tr><th>Tasks</th><th>Count</th></tr></thead><tbody>'+rows.map(row=>'<tr><td>'+esc(row.task)+'</td><td>'+esc(row.count)+'</td></tr>').join("")+'<tr class="grand-total"><td>Total activities</td><td>'+grandTotal+'</td></tr></tbody></table></div></div>':'<div class="empty-state"><div class="empty-icon">'+icon("list")+'</div><h3>No task counts for this month</h3><p>Saved Daily Tasks entries will be totalled here.</p></div>';
+      return renderPageHeader("My task count","Monthly totals for the tasks you recorded. Choose a year and month.",true)+'<div class="month-filters"><div class="field"><label class="field-label" for="countYear">Year</label><select id="countYear" class="select-control">'+[2026,2027,2028,2029].map(x=>'<option value="'+x+'"'+(x===year?' selected':'')+'>'+x+'</option>').join("")+'</select></div><div class="field"><label class="field-label" for="countMonth">Month</label><select id="countMonth" class="select-control">'+months.map((x,i)=>'<option value="'+(i+1)+'"'+(i+1===month?' selected':'')+'>'+x+'</option>').join("")+'</select></div></div>'+table;
+    }
+
+    function navigate(page){
+      if(state.page==="monthlyTourPlan"&&page!=="monthlyTourPlan"&&state.tourPlanDirty)showToast("Unsaved monthly tour-plan changes were discarded.","error");
+      destroyMaps();state.page=page;state.loading=false;state.rangeLoading=false;
+      if(page==="home"){state.fieldEngineerOverviewLoading=true;state.fieldEngineerOverviewError="";state.monthlyExpenseLoading=true;render();loadHomeData();loadMonthlyExpenseTotal(true);return;}
+      if(page==="punch"){state.geo=null;state.geoError="";state.punchDraft={dealerName:"",dealerCity:""};render();return;}
+      if(page==="attendance"){state.attendanceDate=todayDDMMYYYY();state.attendanceRecord=null;state.recordLoading=true;state.recordLoadingType="Attendance";state.recordLoadingDate=state.attendanceDate;render();loadDailyRecord("Attendance",state.attendanceDate);return;}
+      if(page==="dailyTasks"){state.taskDate=todayDDMMYYYY();state.taskRecord=null;state.taskDraft=defaultTaskDraft();state.taskSession=null;state.taskSessionLoading=true;state.recordLoading=true;state.recordLoadingType="DailyTasks";state.recordLoadingDate=state.taskDate;render();loadDailyRecord("DailyTasks",state.taskDate);return;}
+      if(page==="expenses"){state.expenseDate=todayDDMMYYYY();state.expenseRecord=null;state.expenseDraft=null;state.expenseAttendance=null;state.expenseTasks=null;state.expenseTravelFiles=[];state.expenseLodgingFiles=[];state.expenseLoading=true;render();loadExpenseContext(state.expenseDate);return;}
+      if(page==="allotted"){state.loading=true;render();loadAssignedTasks();return;}
+      if(["viewAttendance","viewPunch","viewTasks","viewExpenses"].includes(page)){state.rangeFrom=firstDayOfCurrentMonth();state.rangeTo=todayDDMMYYYY();state.rangeRecords=[];state.rangeLoading=true;render();loadRangeForPage(page);return;}
+      if(page==="taskCount"){const p=todayDDMMYYYY().split("/");state.countYear=Math.min(2029,Math.max(2026,Number(p[2])));state.countMonth=Number(p[1]);state.countRows=[];state.rangeLoading=true;render();loadTaskCounts();return;}
+      if(page==="expenseApprovalStatus"){const p=todayDDMMYYYY().split("/");state.approvalYear=Math.min(2029,Math.max(2026,Number(p[2])));state.approvalMonth=Number(p[1]);state.approvalRows=[];state.approvalTotal=0;state.approvalLoading=true;render();loadExpenseApprovalReport();return;}
+      if(page==="monthlyTourPlan"){const p=todayDDMMYYYY().split("/");state.tourPlanYear=Math.min(2029,Math.max(2026,Number(p[2])));state.tourPlanMonth=Number(p[1]);state.tourPlanRows=[];state.tourPlanOriginal=[];state.tourPlanDirty=false;state.tourPlanLoading=true;state.tourPlanError="";render();loadMonthlyTourPlan();return;}
+      render();
+    }
+    function readDatePicker(id){const el=document.getElementById(id);return el?isoToDisplay(el.value):"";}
+    function applyFieldEngineerOverview(overview){
+      state.fieldEngineerOverview=overview;
+      if(!overview)return;
+      const attendance=overview.attendance;
+      state.attendanceRecord=attendance?{type:"Attendance",date:overview.date,lastEditedAt:attendance.lastEditedAt||"",data:{attendanceStatus:attendance.attendanceStatus||"",locations:attendance.locations||[],dealerName:attendance.dealerName||"",dealerCity:attendance.dealerCity||""}}:null;
+      state.workSession=overview.workSession||null;
+    }
+    function settledHomeRequest(action,payload){return apiRequest(action,payload).then(value=>({value})).catch(error=>({error}));}
+    async function loadHomeData(){
+      if(state.homeLoading)return;state.homeLoading=true;state.fieldEngineerOverviewLoading=true;state.workSessionLoading=true;
+      const date=todayDDMMYYYY();
+      try{
+        const [overviewResult,tasksResult,expensesResult,assignedResult]=await Promise.all([
+          settledHomeRequest("getFieldEngineerDailyOverview",{}),
+          settledHomeRequest("getDailyRecord",{type:"DailyTasks",date}),
+          settledHomeRequest("getDailyRecord",{type:"DailyExpenses",date}),
+          settledHomeRequest("getAssignedTasks",{})
+        ]);
+        if(overviewResult.value&&overviewResult.value.overview){applyFieldEngineerOverview(overviewResult.value.overview);state.fieldEngineerOverviewError="";}
+        else state.fieldEngineerOverviewError=(overviewResult.error&&overviewResult.error.message)||"Today’s overview could not be loaded.";
+        if(tasksResult.value)state.taskRecord=tasksResult.value.record;
+        if(expensesResult.value)state.expenseRecord=expensesResult.value.record;
+        if(assignedResult.value)state.assignedTasks=assignedResult.value.tasks||[];
+      }catch(_){state.fieldEngineerOverviewError="Today’s overview could not be loaded.";}
+      finally{state.homeLoading=false;state.fieldEngineerOverviewLoading=false;state.workSessionLoading=false;ensureWorkSessionTicker();if(state.page==="home")render();}
+    }
+    async function loadMonthlyExpenseTotal(quiet){
+      if(!state.token)return;
+      const requestId=++monthlyExpenseRequestId;
+      const range=currentMonthRange();
+      state.monthlyExpenseLoading=true;
+      if(!quiet&&state.page==="home")render();
+      try{
+        const result=await apiRequest("listEngineerRecords",{type:"DailyExpenses",from:range.from,to:range.to});
+        if(requestId!==monthlyExpenseRequestId||currentMonthRange().key!==range.key)return;
+        const records=Array.isArray(result.records)?result.records:[];
+        state.monthlyExpenseTotal=records.reduce((sum,record)=>sum+sumExpenses(record.data||{}),0);
+        state.monthlyExpenseRecordCount=records.length;
+        state.monthlyExpenseMonthKey=range.key;
+        state.monthlyExpenseError="";
+      }catch(error){
+        if(requestId===monthlyExpenseRequestId&&currentMonthRange().key===range.key)state.monthlyExpenseError=error.message||"Could not load this month’s expense total.";
+      }finally{
+        if(requestId===monthlyExpenseRequestId){state.monthlyExpenseLoading=false;if(state.page==="home")render();}
+      }
+    }
+    async function refreshFieldEngineerDailyOverview(quiet){
+      if(state.fieldEngineerOverviewRefreshPending||state.homeLoading||!state.user)return;
+      state.fieldEngineerOverviewRefreshPending=true;
+      if(!state.fieldEngineerOverview){state.fieldEngineerOverviewLoading=true;if(!quiet&&state.page==="home")render();}
+      try{
+        const result=await apiRequest("getFieldEngineerDailyOverview",{});
+        if(!result||!result.overview)throw new Error("Today’s overview could not be loaded.");
+        applyFieldEngineerOverview(result.overview);state.fieldEngineerOverviewError="";
+      }catch(error){state.fieldEngineerOverviewError=error.message||"Could not refresh today’s overview.";}
+      finally{state.fieldEngineerOverviewRefreshPending=false;state.fieldEngineerOverviewLoading=false;if(state.page==="home")render();}
+    }
+    async function loadDailyRecord(type,date){try{if(type==="DailyTasks"){const [result,sessionResult]=await Promise.all([apiRequest("getDailyRecord",{type,date}),apiRequest("getEngineerDaySession",{date}).catch(error=>({session:null,sessionError:error}))]);if(state.taskDate===date){state.taskRecord=result.record;state.taskDraft=result.record?clone(result.record.data):defaultTaskDraft();state.taskSession=sessionResult.session;if(sessionResult.sessionError)showToast("Could not load this date’s work-session times. Fallback status text is shown.","error");}}else{const result=await apiRequest("getDailyRecord",{type,date});if(type==="Attendance"&&state.attendanceDate===date)state.attendanceRecord=result.record;}}catch(error){if((type==="Attendance"&&state.attendanceDate===date)||(type==="DailyTasks"&&state.taskDate===date))showToast(error.message||"Could not load this date.","error");}finally{if(type==="DailyTasks"&&state.taskDate===date)state.taskSessionLoading=false;if(state.recordLoadingType===type&&state.recordLoadingDate===date){state.recordLoading=false;state.recordLoadingType="";state.recordLoadingDate="";if((type==="Attendance"&&state.page==="attendance")||(type==="DailyTasks"&&state.page==="dailyTasks"))render();}}}
+    function ensureWorkSessionTicker(){if(workSessionTicker||!state.user)return;workSessionTicker=setInterval(()=>{if(!state.user)return;const today=todayDDMMYYYY();if(state.page==="home"){refreshFieldEngineerDailyOverview(true);return;}if(!state.workSession||state.workSession.date!==today)refreshWorkSession(today);},60000);}
+    function stopWorkSessionTicker(){if(workSessionTicker){clearInterval(workSessionTicker);workSessionTicker=null;}}
+    async function refreshWorkSession(date){if(state.workSessionRefreshPending||!state.user)return;state.workSessionRefreshPending=true;try{const result=await apiRequest("getEngineerDaySession",{date:date||todayDDMMYYYY()});state.workSession=result.session;if(state.fieldEngineerOverview&&state.fieldEngineerOverview.date===result.session.date)state.fieldEngineerOverview.workSession=result.session;if(state.taskDate===todayDDMMYYYY()){state.taskSession=result.session;state.taskSessionLoading=false;}}catch(error){if(state.page==="home")showToast(error.message||"Could not refresh today’s work session.","error");}finally{state.workSessionRefreshPending=false;if(state.page==="home")render();else if(state.page==="dailyTasks"&&state.taskDate===todayDDMMYYYY())render();}}
+    async function handleWorkSessionAction(button){if(state.workSessionBusy||state.workSessionLoading)return;const active=Boolean(state.workSession&&state.workSession.status==="LOGGED_IN");const action=active?"endEngineerDaySession":"startEngineerDaySession";state.workSessionBusy=true;if(state.page==="home")render();try{const result=await apiRequest(action,{});state.workSession=result.session;state.workSessionLoading=false;if(state.fieldEngineerOverview&&state.fieldEngineerOverview.date===result.session.date)state.fieldEngineerOverview.workSession=result.session;if(state.taskDate===todayDDMMYYYY()){state.taskSession=result.session;state.taskSessionLoading=false;}showToast(active?"Logout time recorded. Total duration: "+(result.session.duration||formatDurationMinutes(result.session.elapsedMinutes))+".":"Login time recorded at "+result.session.loginTime+".");}catch(error){showToast(error.message||"Could not update your work session.","error");}finally{state.workSessionBusy=false;if(state.page==="home")render();else if(state.page==="dailyTasks"&&state.taskDate===todayDDMMYYYY())render();}}
+    async function loadExpenseContext(date){try{const [tasks,attendance,expense]=await Promise.all([apiRequest("getDailyRecord",{type:"DailyTasks",date}),apiRequest("getDailyRecord",{type:"Attendance",date}),apiRequest("getDailyRecord",{type:"DailyExpenses",date})]);if(state.expenseDate===date){state.expenseTasks=tasks.record;state.expenseAttendance=attendance.record;state.expenseRecord=expense.record;state.expenseDraft=expense.record?clone(expense.record.data):{};}}catch(error){if(state.expenseDate===date)showToast(error.message||"Could not check the selected date.","error");}finally{if(state.expenseDate===date){state.expenseLoading=false;if(state.page==="expenses")render();}}}
+    async function loadAssignedTasks(){try{const result=await apiRequest("getAssignedTasks",{});state.assignedTasks=result.tasks||[];}catch(error){showToast(error.message||"Could not load assigned tasks.","error");}finally{state.loading=false;if(state.page==="allotted")render();}}
+    async function loadRangeForPage(page){const types={viewAttendance:"Attendance",viewPunch:"DealerPunch",viewTasks:"DailyTasks",viewExpenses:"DailyExpenses"};const from=state.rangeFrom,to=state.rangeTo;try{const result=await apiRequest("listEngineerRecords",{type:types[page],from,to});if(state.page===page&&state.rangeFrom===from&&state.rangeTo===to)state.rangeRecords=result.records||[];}catch(error){if(state.page===page&&state.rangeFrom===from&&state.rangeTo===to){showToast(error.message||"Could not load records.","error");state.rangeRecords=[];}}finally{if(state.page===page&&state.rangeFrom===from&&state.rangeTo===to){state.rangeLoading=false;render();}}}
+    async function loadTaskCounts(){const year=state.countYear,month=state.countMonth;try{const result=await apiRequest("getTaskCount",{year,month});if(state.page==="taskCount"&&state.countYear===year&&state.countMonth===month)state.countRows=result.rows||[];}catch(error){if(state.page==="taskCount"&&state.countYear===year&&state.countMonth===month){showToast(error.message||"Could not calculate task totals.","error");state.countRows=[];}}finally{if(state.page==="taskCount"&&state.countYear===year&&state.countMonth===month){state.rangeLoading=false;render();}}}
+    async function loadExpenseApprovalReport(){const year=Number(state.approvalYear),month=Number(state.approvalMonth);try{const result=await apiRequest("getEngineerExpenseApprovalReport",{year,month});if(state.page==="expenseApprovalStatus"&&state.approvalYear===year&&state.approvalMonth===month){const report=result.report||{};state.approvalRows=report.rows||[];state.approvalTotal=Number(report.totalExpenses)||0;}}catch(error){if(state.page==="expenseApprovalStatus"&&state.approvalYear===year&&state.approvalMonth===month){state.approvalRows=[];state.approvalTotal=0;showToast(error.message||"Could not load expense approval status.","error");}}finally{if(state.page==="expenseApprovalStatus"&&state.approvalYear===year&&state.approvalMonth===month){state.approvalLoading=false;render();}}}
+
+
+    async function saveAttendance(event){
+      event.preventDefault();
+      if(state.recordLoading&&state.recordLoadingType==="Attendance"&&state.recordLoadingDate===state.attendanceDate){showToast("Wait for this date’s saved record to finish loading.","error");return;}
+      const form=event.currentTarget;
+      if(!requireTrimmedFields(form,[["dealerName","Dealer Name"],["dealerCity","Dealer City"],["comments","Comments"]]))return;
+      const status=form.querySelector('[name="attendanceStatus"]').value;
+      if(!status){showToast("Choose an attendance status.","error");return;}
+      const data={attendanceStatus:status,locations:Array.from(form.querySelectorAll('[name="attendanceLocations"]:checked')).map(x=>x.value),visitTypes:Array.from(form.querySelectorAll('[name="visitTypes"]:checked')).map(x=>x.value),plannedActivities:readActivitySelections(form),dealerName:form.querySelector('[name="dealerName"]').value.trim(),dealerCity:form.querySelector('[name="dealerCity"]').value.trim(),comments:form.querySelector('[name="comments"]').value.trim()};
+      const button=form.querySelector('[type="submit"]');const label=icon("check")+'<span>Save attendance</span>';setBusy(button,true,label);
+      try{const result=await apiRequest("saveDailyRecord",{type:"Attendance",date:state.attendanceDate,data});state.attendanceRecord=result.record;showToast("Attendance saved for "+state.attendanceDate+".");render();}
+      catch(error){showToast(error.message||"Could not save attendance.","error");setBusy(button,false,label);}
+    }
+
+    async function saveAssignedTask(id){const status=document.querySelector('[data-assigned-status="'+CSSesc(id)+'"]');const response=document.querySelector('[data-assigned-response="'+CSSesc(id)+'"]');const button=document.querySelector('[data-save-assigned="'+CSSesc(id)+'"]');const label=icon("check")+'<span>Save update</span>';setBusy(button,true,label);try{const result=await apiRequest("saveAssignedTaskResponse",{id,status:status?status.value:"Pending",response:response?response.value.trim():""});const index=state.assignedTasks.findIndex(x=>x.id===id);if(index>=0)state.assignedTasks[index]=result.task;showToast("Task update sent to your manager.");render();}catch(error){showToast(error.message||"Could not save the task update.","error");setBusy(button,false,label);}}
+
+    async function handlePunchSubmit(event){event.preventDefault();const form=event.currentTarget;const dealerName=form.querySelector('[name="dealerName"]').value.trim();const dealerCity=form.querySelector('[name="dealerCity"]').value.trim();state.punchDraft={dealerName,dealerCity};if(dealerName.length<2||dealerCity.length<2){showToast("Enter the dealer name and city.","error");return;}if(!state.geo){showToast("Capture your current GPS location before submitting.","error");return;}const button=form.querySelector('[type="submit"]');const label=icon("check")+'<span>Submit dealer punch</span>';setBusy(button,true,label);try{const result=await apiRequest("createDealerPunch",{dealerName,dealerCity,latitude:state.geo.latitude,longitude:state.geo.longitude});showToast("Dealer punch saved at "+(result.punch.punchedAt||todayDDMMYYYY())+".");state.geo=null;state.geoError="";state.punchDraft={dealerName:"",dealerCity:""};navigate("home");}catch(error){showToast(error.message||"Could not save the punch.","error");setBusy(button,false,label);}}
+    function readPunchForm(){const form=document.getElementById("punchForm");if(!form)return state.punchDraft||{};return{dealerName:form.querySelector('[name="dealerName"]').value,dealerCity:form.querySelector('[name="dealerCity"]').value};}
+    function captureLocation(){if(state.geoBusy)return;state.punchDraft=readPunchForm();state.geoError="";if(!navigator.geolocation){state.geoError="This browser does not support GPS location.";render();return;}state.geoBusy=true;render();navigator.geolocation.getCurrentPosition(position=>{state.geo={latitude:position.coords.latitude,longitude:position.coords.longitude,accuracy:position.coords.accuracy};state.geoBusy=false;state.geoError="";render();},error=>{state.geoBusy=false;state.geoError=error.code===1?"Location permission was denied. Allow location access and try again.":"Could not get GPS location. Check signal and retry.";render();},{enableHighAccuracy:true,timeout:18000,maximumAge:0});}
+
+    async function saveDailyTasks(event){
+      event.preventDefault();
+      if(state.recordLoading&&state.recordLoadingType==="DailyTasks"&&state.recordLoadingDate===state.taskDate){showToast("Wait for this date’s saved record to finish loading.","error");return;}
+      const form=event.currentTarget;
+      if(!requireTrimmedFields(form,[["taskComments","Task Comment"]]))return;
+      const draft=collectDailyTaskForm();const button=form.querySelector('[type="submit"]');const label=icon("check")+'<span>Save daily tasks</span>';setBusy(button,true,label);
+      try{const result=await apiRequest("saveDailyRecord",{type:"DailyTasks",date:state.taskDate,data:draft});state.taskRecord=result.record;state.taskDraft=clone(result.record.data);showToast("Daily tasks saved for "+state.taskDate+".");render();}
+      catch(error){showToast(error.message||"Could not save daily tasks.","error");setBusy(button,false,label);}
+    }
+
+    function handleFileInput(input){state.expenseDraft={...(state.expenseDraft||{}),...(readExpenseForm()||{})};const category=input.dataset.attachmentInput;const files=Array.from(input.files||[]);const saved=category==="Travel"?(state.expenseDraft.travelAttachments||state.expenseRecord?.data?.travelAttachments||[]):(state.expenseDraft.lodgingAttachments||state.expenseRecord?.data?.lodgingAttachments||[]);const current=category==="Travel"?state.expenseTravelFiles:state.expenseLodgingFiles;const limit=category==="Travel"?3:1;const remaining=limit-saved.length-current.length;const add=files.slice(0,Math.max(0,remaining));if(files.length>add.length)showToast("Attachment limit reached for "+category+".","error");const invalid=add.find(file=>file.size>2*1024*1024&&!file.type.startsWith("image/"));if(invalid){showToast(invalid.name+" is larger than 2 MB. Choose a smaller file.","error");input.value="";return;}if(category==="Travel")state.expenseTravelFiles=current.concat(add);else state.expenseLodgingFiles=current.concat(add);render();}
+    function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=()=>reject(new Error("Could not read "+file.name));reader.readAsDataURL(file);});}
+    function compressImage(file){return new Promise(resolve=>{if(!file.type.startsWith("image/")||file.size<450*1024){resolve(file);return;}const url=URL.createObjectURL(file);const image=new Image();image.onload=()=>{try{const scale=Math.min(1,1600/Math.max(image.width,image.height));const canvas=document.createElement("canvas");canvas.width=Math.round(image.width*scale);canvas.height=Math.round(image.height*scale);const ctx=canvas.getContext("2d");ctx.drawImage(image,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{URL.revokeObjectURL(url);resolve(blob&&blob.size<file.size?new File([blob],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"}):file);},"image/jpeg",.76);}catch(_){URL.revokeObjectURL(url);resolve(file);}};image.onerror=()=>{URL.revokeObjectURL(url);resolve(file);};image.src=url;});}
+    async function uploadExpenseFile(file,category,date){const prepared=await compressImage(file);if(prepared.size>2*1024*1024)throw new Error(file.name+" is still larger than 2 MB after photo resizing.");const payload={category,date,fileName:prepared.name||file.name,mimeType:prepared.type||file.type,sizeBytes:prepared.size};if(CONFIG.API_URL)payload.base64=await readFileAsDataURL(prepared);const result=await apiRequest("uploadExpenseAttachment",payload);return result&&result.attachment?result.attachment:result;}
+    async function saveExpenses(event){
+      event.preventDefault();
+      const form=event.currentTarget;
+      if(!requireTrimmedFields(form,[["dayStartCity","Day Start City"],["travelComments","Travel Comments"]]))return;
+      const fields=readExpenseForm();if(!fields)return;
+      const amountFields=[['localTravelExpense',300,'Local Travel Expense cannot exceed Rs 300.'],['lodgingExpenses',1300,'Lodging Expenses cannot exceed Rs 1300.'],['outstationLocalTravel',300,'Outstation local travel cannot exceed Rs 300.'],['outstationFoodExpense',500,'Outstation food expenses cannot exceed Rs 500.']];
+      for(const [key,max,message] of amountFields){const input=form.querySelector('[name="'+key+'"]');if(input&&input.value!==""&&Number(input.value)>max){showToast(message,"error");input.focus();return;}if(input&&input.value!==""&&Number(input.value)<0){showToast("Expense amounts cannot be negative.","error");input.focus();return;}}
+      state.expenseDraft={...(state.expenseDraft||{}),...fields,location:state.expenseAttendance.data.locations||[]};const savedTravel=state.expenseDraft.travelAttachments||state.expenseRecord?.data?.travelAttachments||[];const savedLodging=state.expenseDraft.lodgingAttachments||state.expenseRecord?.data?.lodgingAttachments||[];if(savedTravel.length+state.expenseTravelFiles.length>3||savedLodging.length+state.expenseLodgingFiles.length>1){showToast("Attachment limits are 3 travel files and 1 lodging bill.","error");return;}
+      const button=form.querySelector('[type="submit"]');const label=icon("check")+'<span>Save expenses</span>';setBusy(button,true,label);
+      try{
+        const travel=savedTravel.slice();const lodging=savedLodging.slice();const travelPending=state.expenseTravelFiles.slice();const lodgingPending=state.expenseLodgingFiles.slice();
+        for(let i=0;i<travelPending.length;i++){button.querySelector("span").textContent="Uploading travel "+(i+1)+"/"+travelPending.length+"…";travel.push(await uploadExpenseFile(travelPending[i],"Travel",state.expenseDate));state.expenseTravelFiles=travelPending.slice(i+1);state.expenseDraft={...state.expenseDraft,travelAttachments:travel.slice(),lodgingAttachments:lodging.slice()};}
+        for(let i=0;i<lodgingPending.length;i++){button.querySelector("span").textContent="Uploading lodging bill…";lodging.push(await uploadExpenseFile(lodgingPending[i],"Lodging",state.expenseDate));state.expenseLodgingFiles=lodgingPending.slice(i+1);state.expenseDraft={...state.expenseDraft,travelAttachments:travel.slice(),lodgingAttachments:lodging.slice()};}
+        const data={...fields,location:state.expenseAttendance.data.locations||[],travelAttachments:travel,lodgingAttachments:lodging};
+        button.querySelector("span").textContent="Saving…";
+        const result=await apiRequest("saveDailyRecord",{type:"DailyExpenses",date:state.expenseDate,data});state.expenseRecord=result.record;state.expenseDraft=clone(result.record.data);state.expenseTravelFiles=[];state.expenseLodgingFiles=[];showToast("Expenses saved for "+state.expenseDate+".");loadMonthlyExpenseTotal(true);render();
+      }catch(error){showToast(error.message||"Could not save expenses.","error");setBusy(button,false,label);render();}
+    }
+    function formatBytes(size){if(size<1024)return size+" B";if(size<1024*1024)return (size/1024).toFixed(0)+" KB";return (size/(1024*1024)).toFixed(1)+" MB";}
+
+    function openRecordDetails(record,type){
+      const title=type==="Attendance"?"Attendance details":type==="DailyTasks"?"Daily task details":type==="DailyExpenses"?"Expense details":"Dealer punch details";
+      const recordDate=Array.isArray(record)?(record[0]&&record[0].date||""):(record&&record.date||"");
+      let body="";let punchPoints=[];
+      if(type==="DealerPunch"){
+        punchPoints=Array.isArray(record)?record:[record];state.modalMapPoints=punchPoints;
+        body='<div id="punchListMap" class="map-panel large">'+renderMapFallback(punchPoints[0]?.latitude,punchPoints[0]?.longitude,"Dealer punch locations")+'</div><div class="muted-divider"></div>'+punchPoints.map(p=>'<section class="detail-section"><h4>'+esc(p.dealerName)+' · '+esc(p.dealerCity)+'</h4><div class="detail-grid"><div class="detail-pair"><span>Punch time</span><b>'+esc(p.punchedAt)+'</b></div><div class="detail-pair"><span>Address</span><b>'+esc(p.address||"—")+'</b></div><div class="detail-pair"><span>Latitude</span><b>'+esc(p.latitude)+'</b></div><div class="detail-pair"><span>Longitude</span><b>'+esc(p.longitude)+'</b></div></div></section>').join("");
+      }else{state.modalMapPoints=[];body=renderRecordData(type,record);}
+      document.getElementById("modalRoot").innerHTML='<div class="modal-backdrop" data-modal-backdrop><section class="modal '+(type==="DealerPunch"?'wide-modal':'')+'" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><div><h2 id="modalTitle">'+esc(title)+'</h2><div class="subtle">'+esc(recordDate)+'</div></div><button class="modal-close" type="button" data-close-modal aria-label="Close">'+icon("alert")+'</button></div><div class="modal-body">'+body+'</div></section></div>';
+      if(type==="DealerPunch")drawMap("punchListMap",punchPoints);
+    }
+    function renderRecordData(type,record){
+      const data=record.data||{};
+      if(type==="Attendance"){
+        return '<div class="detail-grid">'+detailPair("Attendance",data.attendanceStatus)+detailPair("LOGIN TIME",record.loginTime||"Not Logged-In")+detailPair("LOGOUT TIME",record.logoutTime||"Not Logged-Out")+detailPair("Location",(data.locations||[]).join(", "))+detailPair("Visit type",(data.visitTypes||[]).join(", "))+detailPair("Dealer",[data.dealerName,data.dealerCity].filter(Boolean).join(" · "))+'</div>'+renderActivityGroups(data.plannedActivities||[])+(data.comments?'<section class="detail-section"><h4>Comments</h4><div class="detail-value">'+esc(data.comments)+'</div></section>':'')+'<p class="subtle">Last updated '+esc(record.lastEditedAt||"—")+'</p>';
+      }
+      if(type==="DailyTasks"){
+        const tasks=data.activities||{};const active=TASK_CATALOG.filter(c=>activityHasValue(tasks[c.key]));
+        return '<div class="detail-grid">'+detailPair("Login time",data.loginTime)+detailPair("Logout time",data.logoutTime)+detailPair("Location",Array.isArray(record.location)?record.location.join(", "):(data.location||[]).join(", "))+'</div>'+active.map(c=>'<section class="detail-section"><h4>'+esc(c.label)+' · '+countForActivity(c,tasks[c.key])+'</h4>'+renderTaskActivitySummary(c,tasks[c.key])+'</section>').join("")+(data.taskComments?'<section class="detail-section"><h4>Task comments</h4><div class="detail-value">'+esc(data.taskComments)+'</div></section>':'')+'<p class="subtle">Last updated '+esc(record.lastEditedAt||"—")+'</p>';
+      }
+      if(type==="DailyExpenses"){
+        const loc=(data.location||[]).join(", ");const files=[...(data.travelAttachments||[]),...(data.lodgingAttachments||[])];
+        return '<div class="detail-grid">'+detailPair("Location",loc)+detailPair("Day start city",data.dayStartCity)+detailPair("City 1",data.city1)+detailPair("City 2",data.city2)+detailPair("Day end city",data.dayEndCity)+detailPair("Local Travel Expense","Rs "+formatMoney(data.localTravelExpense))+detailPair("Outstation Travel Expense","Rs "+formatMoney(data.outstationTravelExpense))+detailPair("Lodging Expenses","Rs "+formatMoney(data.lodgingExpenses))+detailPair("Outstation food expenses","Rs "+formatMoney(data.outstationFoodExpense))+detailPair("Outstation local travel","Rs "+formatMoney(data.outstationLocalTravel))+detailPair("Total","Rs "+formatMoney(sumExpenses(data)))+'</div>'+(data.travelConveyanceComments?'<section class="detail-section"><h4>Travel conveyance comments</h4><div class="detail-value">'+esc(data.travelConveyanceComments)+'</div></section>':'')+(data.travelComments?'<section class="detail-section"><h4>Travel comments</h4><div class="detail-value">'+esc(data.travelComments)+'</div></section>':'')+(files.length?'<section class="detail-section"><h4>Attachments saved in private Drive folder</h4>'+files.map(f=>'<div class="attached-file">'+icon("check")+'<span>'+esc(f.fileName||"Receipt")+' · '+esc(formatBytes(Number(f.sizeBytes)||0))+'</span></div>').join("")+'</section>':'')+'<p class="subtle">Last updated '+esc(record.lastEditedAt||"—")+'</p>';
+      }
+      return '<div class="detail-value">No details.</div>';
+    }
+    function detailPair(label,value){return '<div class="detail-pair"><span>'+esc(label)+'</span><b>'+esc(value==null||value===""?"—":Array.isArray(value)?value.join(", "):value)+'</b></div>';}
+    function renderActivityGroups(values){const visit=(values||[]).filter(v=>String(v).startsWith("Visit Activities:" )).map(v=>String(v).replace("Visit Activities: ",""));const other=(values||[]).filter(v=>String(v).startsWith("Other Activities:" )).map(v=>String(v).replace("Other Activities: ",""));return (visit.length?'<section class="detail-section"><h4>Visit Activities</h4><div class="detail-value">'+visit.map(esc).join(" · ")+'</div></section>':'')+(other.length?'<section class="detail-section"><h4>Other Activities</h4><div class="detail-value">'+other.map(esc).join(" · ")+'</div></section>':'');}
+    function renderTaskActivitySummary(config,value){if(config.kind==="repeat"){const entries=(value&&value.entries||[]).filter(row=>Object.values(row||{}).some(v=>String(v||"").trim()!==""));return entries.length?entries.map((row,i)=>'<div class="detail-pair" style="margin:5px 0"><span>Entry '+(i+1)+'</span><b>'+Object.entries(row).filter(([,v])=>String(v||"").trim()).map(([k,v])=>esc(labelFromKey(k))+': '+esc(v)).join('<br>')+'</b></div>').join(""):'<span class="subtle">No detail entered</span>';}return '<div class="detail-grid">'+Object.entries(value||{}).filter(([k,v])=>k!=="selected"&&String(v||"").trim()!=="").map(([k,v])=>detailPair(labelFromKey(k),v)).join("")+'</div>';}
+    function labelFromKey(key){return String(key).replace(/([A-Z])/g," $1").replace(/^./,x=>x.toUpperCase());}
+    function meaningfulEntryCount(entries){return(Array.isArray(entries)?entries:[]).filter(row=>Object.values(row||{}).some(x=>String(x||"").trim()!=="")).length;}
+    function countForActivity(config,value){if(!value)return 0;if(config.kind==="repeat")return meaningfulEntryCount(value.entries);return Number(value[config.countField])||0;}
+    function activeTaskCount(activities){return TASK_CATALOG.filter(c=>activityHasValue(activities&&activities[c.key])).length;}
+
+    function closeModal(){document.getElementById("modalRoot").innerHTML="";state.modalMapPoints=[];destroyMaps();}
+    function drawMap(elementId,points){
+      const el=document.getElementById(elementId);if(!el)return;destroyMaps();
+      if(!window.L){const first=points&&points.length?points[0]:null;el.innerHTML=renderMapFallback(first&&first.latitude,first&&first.longitude,first?"Map needs an internet connection":"Map preview");return;}
+      const valid=(points||[]).filter(p=>Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude)));if(!valid.length){el.innerHTML=renderMapFallback(null,null,"No GPS points");return;}
+      el.innerHTML="";const center=[Number(valid[0].latitude),Number(valid[0].longitude)];const map=L.map(el,{scrollWheelZoom:false}).setView(center,valid.length>1?12:15);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);valid.forEach(p=>{const marker=L.marker([Number(p.latitude),Number(p.longitude)]).addTo(map);marker.bindPopup('<b>'+esc(p.dealerName||"Dealer")+'</b><br>'+esc(p.dealerCity||"")+'<br>'+esc(p.address||""));});if(valid.length>1){const group=L.featureGroup(valid.map(p=>L.marker([Number(p.latitude),Number(p.longitude)])));map.fitBounds(group.getBounds().pad(.15));}state.mapInstances.push(map);setTimeout(()=>map.invalidateSize(),100);
+    }
+    function destroyMaps(){state.mapInstances.forEach(map=>{try{map.remove()}catch(_){}});state.mapInstances=[];}
+
+    function readRangeInputs(){state.rangeFrom=readDatePicker("rangeFrom")||state.rangeFrom;state.rangeTo=readDatePicker("rangeTo")||state.rangeTo;}
+    async function applyRange(type){readRangeInputs();if(dateKey(state.rangeFrom)>dateKey(state.rangeTo)){showToast("The start date must be before the end date.","error");return;}state.rangeLoading=true;render();const page={Attendance:"viewAttendance",DealerPunch:"viewPunch",DailyTasks:"viewTasks",DailyExpenses:"viewExpenses"}[type];await loadRangeForPage(page);}
+    function openPunchDate(date){const points=state.rangeRecords.filter(x=>x.date===date);openRecordDetails(points,"DealerPunch");}
+
+    function sumExpenses(data){return ["localTravelExpense","outstationTravelExpense","lodgingExpenses","outstationFoodExpense","outstationLocalTravel"].reduce((sum,key)=>sum+(Number(data&&data[key])||0),0);}
+    function formatMoney(value){return (Number(value)||0).toLocaleString("en-IN",{minimumFractionDigits:0,maximumFractionDigits:2});}
+    function showToast(message,type){const region=document.getElementById("toastRegion");const item=document.createElement("div");item.className="toast"+(type==="error"?" error":"");item.innerHTML=icon(type==="error"?"alert":"check")+'<span>'+esc(message)+'</span>';region.appendChild(item);setTimeout(()=>{item.style.opacity="0";item.style.transform="translateY(5px)";setTimeout(()=>item.remove(),220)},3500);}
+
+    /* Apps Script requests are queued because one hidden iframe is used for CORS-free form posts. */
+    function apiRequest(action,payload){if(!CONFIG.API_URL)return demoRequest(action,payload||{});const run=()=>appsScriptRequest(action,payload||{});const next=state.apiQueue.then(run,run);state.apiQueue=next.catch(()=>{});return next;}
+    function appsScriptRequest(action,payload){return new Promise((resolve,reject)=>{
+      if(!/^https:\/\//i.test(CONFIG.API_URL)){reject(new Error("Set the Apps Script /exec URL in CONFIG.API_URL."));return;}
+      const requestId="fe_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,10);const timeoutId=setTimeout(()=>{pendingCalls.delete(requestId);reject(new Error("The FST service took too long to respond. Check your connection and retry."));},45000);pendingCalls.set(requestId,{resolve,reject,timeoutId});
+      const form=document.createElement("form");form.method="POST";form.action=CONFIG.API_URL;form.target="fstFieldApiFrame";form.acceptCharset="UTF-8";form.style.display="none";const input=document.createElement("input");input.type="hidden";input.name="payload";input.value=JSON.stringify({requestId,action,payload:payload||{},token:state.token||""});form.appendChild(input);document.body.appendChild(form);try{form.submit()}catch(_){clearTimeout(timeoutId);pendingCalls.delete(requestId);reject(new Error("Could not reach the FST service."));}setTimeout(()=>form.remove(),1200);
+    });}
+    window.addEventListener("message",event=>{if(event.source!==apiFrame.contentWindow)return;const msg=event.data;if(!msg||msg.channel!=="FST_API"||!msg.requestId)return;const pending=pendingCalls.get(msg.requestId);if(!pending)return;clearTimeout(pending.timeoutId);pendingCalls.delete(msg.requestId);const res=msg.response||{};if(res.ok)pending.resolve(res.data);else pending.reject(new Error(res.error||"FST could not complete the request."));});
+
+    function demoDateForEpoch(epoch){return new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(Number(epoch)));}
+    function demoSessionTime(epoch){return new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit",hour12:true}).format(new Date(Number(epoch))).replace(/\s+/g," ").toUpperCase();}
+    function demoFieldEngineerOverviewClockTime(stamp){const m=/(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(String(stamp||""));if(!m)return String(stamp||"No Punch");const h=Number(m[1]),mm=Number(m[2]);return h>23||mm>59?String(stamp):String(h%12||12).padStart(2,"0")+":"+String(mm).padStart(2,"0")+" "+(h>=12?"PM":"AM");}
+    function demoSessionStamp(epoch){return demoDateForEpoch(epoch)+" "+new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(new Date(Number(epoch)));}
+        function demoAutoLogoutEpoch(date){const p=String(date||"").split("/");return p.length===3?new Date(p[2]+"-"+p[1]+"-"+p[0]+"T23:59:00+05:30").getTime():0;}
+    function demoSessionDuration(minutes){minutes=Math.max(0,Math.floor(Number(minutes)||0));return String(Math.floor(minutes/60)).padStart(2,"0")+":"+String(minutes%60).padStart(2,"0");}
+    function demoSessionSummary(record,date){if(!record)return{date,status:"NOT_STARTED",loginTime:"Not Logged-In",logoutTime:"Not Logged-Out",loginEpochMs:0,logoutEpochMs:0,elapsedMinutes:0,duration:"00:00",autoClosed:false};const end=Number(record.logoutEpochMs)||Date.now();const elapsed=record.loginEpochMs?Math.max(0,Math.floor((end-Number(record.loginEpochMs))/60000)):0;return{date:record.date,status:record.logoutEpochMs?"LOGGED_OUT":"LOGGED_IN",loginTime:record.loginEpochMs?demoSessionTime(record.loginEpochMs):"Not Logged-In",logoutTime:record.logoutEpochMs?demoSessionTime(record.logoutEpochMs):"Not Logged-Out",loginEpochMs:Number(record.loginEpochMs)||0,logoutEpochMs:Number(record.logoutEpochMs)||0,elapsedMinutes:elapsed,duration:demoSessionDuration(elapsed),autoClosed:Boolean(record.autoClosed)};}
+    function demoSyncTaskSessionTimes(db,record){const task=db.records.find(x=>x.type==="DailyTasks"&&x.date===record.date);if(!task)return;const times=demoSessionSummary(record,record.date);task.data=task.data||{};task.data.loginTime=times.loginTime;task.data.logoutTime=times.logoutTime;task.lastEditedAt=demoSessionStamp(Date.now());}
+    function demoCloseOverdueSessions(db){if(!Array.isArray(db.sessions))db.sessions=[];const todayKey=dateKey(todayDDMMYYYY()),now=Date.now();let changed=false;db.sessions.forEach(record=>{if(!record||record.logoutEpochMs||!record.loginEpochMs)return;const close=demoAutoLogoutEpoch(record.date);if(!close||dateKey(record.date)>todayKey||close>now)return;record.logoutEpochMs=close;record.logoutAt=demoSessionStamp(close);record.autoClosed=true;record.lastEditedAt=demoSessionStamp(now);demoSyncTaskSessionTimes(db,record);changed=true;});return changed;}
+    function demoEnsureSessionStore(db){let changed=false;if(!Array.isArray(db.sessions)){db.sessions=[];changed=true;}if(demoCloseOverdueSessions(db))changed=true;return changed;}
+    function demoSessionForDate(db,date){demoEnsureSessionStore(db);return demoSessionSummary(db.sessions.find(x=>x.date===date)||null,date);}
+    function demoSeed(){const date=todayDDMMYYYY();const activities={dsqAudit:{entries:[{dealerName:"Western Auto Care",city:"Mumbai",score:82},{dealerName:"Harbor Bosch Service",city:"Mumbai",score:91}]},weeklyDataCollection:{collectedDataCount:3,dealerNames:"Western Auto Care\nHarbor Bosch Service\nCity Motors"},iuwMarketingCalls:{callCount:4,todaysSubscription:1}};return{sessions:[],records:[{id:"demo-att-today",type:"Attendance",date,data:{attendanceStatus:"Present",locations:["Local"],visitTypes:["On-Site [Local]"],plannedActivities:["Visit Activities: Dealer Visit - Local","Other Activities: Weekly Data Collection [Reference Injector]"],dealerName:"Western Auto Care",dealerCity:"Mumbai",comments:"Morning dealer visits."},createdAt:date+" 08:45:00",lastEditedAt:date+" 08:45:00"},{id:"demo-task-today",type:"DailyTasks",date,data:{loginTime:"Not Logged-In",activities,logoutTime:"Not Logged-Out",taskComments:"Completed dealer checks."},location:["Local"],createdAt:date+" 09:05:00",lastEditedAt:date+" 18:00:00"},{id:"demo-exp-today",type:"DailyExpenses",date,data:{location:["Local"],dayStartCity:"Mumbai",city1:"",city2:"",dayEndCity:"",localTravelExpense:220,outstationTravelExpense:0,lodgingExpenses:0,outstationFoodExpense:0,outstationLocalTravel:0,travelConveyanceComments:"",travelComments:"Local dealer travel",travelAttachments:[],lodgingAttachments:[]},createdAt:date+" 18:05:00",lastEditedAt:date+" 18:05:00"}],punches:[{id:"demo-punch-1",date,engineerName:"Aarav Kulkarni",punchedAt:date+" 10:25:00",dealerName:"Western Auto Care",dealerCity:"Mumbai",latitude:19.076,longitude:72.8777,address:"Fort, Mumbai, Maharashtra"}],assignedTasks:[{id:"demo-assigned-1",title:"Complete workshop readiness check",details:"Visit the assigned dealer, verify the service bay checklist and share any gaps in your response.",priority:"High",assignedAt:date+" 09:15:00",status:"In-Progress",response:"On site; checking the tools and signage.",responseAt:date+" 11:20:00",assignedByName:"Rohan Mehta"},{id:"demo-assigned-2",title:"Follow up on warranty material",details:"Confirm receipt of the pending warranty material and report the expected closure date.",priority:"Medium",assignedAt:date+" 09:30:00",status:"Pending",response:"",responseAt:"",assignedByName:"Rohan Mehta"}],expenseApprovals:[{date,status:"Approved",approvedByName:"Rohan Mehta",reviewedAt:date+" 18:30:00"}],monthlyTourPlans:[{id:"demo-tour-today",engineerId:"demo-fe-1",date,location:"LOCAL",city:"Mumbai",dealer:"Western Auto Care",taskPlan:"Review workshop readiness and confirm warranty material status.",approvalStatus:"Approved",approvedById:"demo-zone-1",approvedByName:"Rohan Mehta",approvedDate:date,lastEditedAt:date+" 08:30:00"}]};}
+    function getDemoDb(){if(demoDbMemory)return clone(demoDbMemory);const saved=safeLocalGet(DEMO_DB_KEY);if(saved){try{const parsed=JSON.parse(saved);if(parsed&&Array.isArray(parsed.records)){if(!Array.isArray(parsed.expenseApprovals))parsed.expenseApprovals=demoSeed().expenseApprovals;if(!Array.isArray(parsed.monthlyTourPlans))parsed.monthlyTourPlans=demoSeed().monthlyTourPlans;const sessionsMigrated=!Array.isArray(parsed.sessions);const sessionChanged=demoEnsureSessionStore(parsed);if(sessionsMigrated&&parsed.sessions.length)demoSyncTaskSessionTimes(parsed,parsed.sessions[parsed.sessions.length-1]);demoDbMemory=parsed;if(sessionsMigrated||sessionChanged)safeLocalSet(DEMO_DB_KEY,JSON.stringify(parsed));return clone(parsed)}}catch(_){}}demoDbMemory=demoSeed();safeLocalSet(DEMO_DB_KEY,JSON.stringify(demoDbMemory));return clone(demoDbMemory);}
+    function demoExpenseApprovalReport(db,year,month){const rows=[];const count=new Date(year,month,0).getDate();for(let day=1;day<=count;day++){const date=String(day).padStart(2,"0")+"/"+String(month).padStart(2,"0")+"/"+year;const attRecord=db.records.find(r=>r.type==="Attendance"&&r.date===date);const expenseRecord=db.records.find(r=>r.type==="DailyExpenses"&&r.date===date);if(!attRecord||attRecord.data.attendanceStatus!=="Present"||!expenseRecord)continue;const taskRecord=db.records.find(r=>r.type==="DailyTasks"&&r.date===date);const exp=expenseRecord.data||{},att=attRecord.data||{};const punches=(db.punches||[]).filter(p=>p.date===date).map(p=>{const lat=Number(p.latitude),lon=Number(p.longitude);return{dealerName:p.dealerName,dealerCity:p.dealerCity,punchTime:String(p.punchedAt||"").split(/\s+/).pop(),coordinates:Number.isFinite(lat)&&Number.isFinite(lon)?lat.toFixed(6)+", "+lon.toFixed(6):"",address:p.address||""};});const total=["localTravelExpense","outstationTravelExpense","lodgingExpenses","outstationFoodExpense","outstationLocalTravel"].reduce((sum,k)=>sum+(Number(exp[k])||0),0);const approval=(db.expenseApprovals||[]).find(x=>x.date===date);const weekday=new Intl.DateTimeFormat("en-US",{weekday:"short",timeZone:"Asia/Kolkata"}).format(new Date(year,month-1,day,12));rows.push({date,day:weekday.toUpperCase(),attendance:"Present",location:(att.locations||[]).join(", ").toUpperCase(),taskComments:taskRecord&&taskRecord.data?taskRecord.data.taskComments||"":"",totalExpenses:Math.round(total*100)/100,localTravelExpense:Number(exp.localTravelExpense)||0,outstationTravelExpense:Number(exp.outstationTravelExpense)||0,lodgingExpenses:Number(exp.lodgingExpenses)||0,outstationFoodExpense:Number(exp.outstationFoodExpense)||0,outstationLocalTravel:Number(exp.outstationLocalTravel)||0,travelComments:exp.travelComments||"",dealerPunches:punches,status:approval?approval.status:"Pending",approvedByName:approval?approval.approvedByName||"":"",reviewedAt:approval?approval.reviewedAt||"":""});}return{rows,totalExpenses:Math.round(rows.reduce((sum,r)=>sum+r.totalExpenses,0)*100)/100};}
+    function setDemoDb(db){demoDbMemory=clone(db);safeLocalSet(DEMO_DB_KEY,JSON.stringify(demoDbMemory));}
+    function demoMonthlyTourPlanRows(db,year,month){const days=Array.from({length:new Date(year,month,0).getDate()},(_,i)=>{const day=i+1,date=new Date(year,month-1,day,12);return{date:String(day).padStart(2,"0")+"/"+String(month).padStart(2,"0")+"/"+year,day:new Intl.DateTimeFormat("en-US",{weekday:"short",timeZone:"Asia/Kolkata"}).format(date).toUpperCase()};});const plans=(db.monthlyTourPlans||[]).filter(p=>p.engineerId==="demo-fe-1"&&Number(String(p.date).split("/")[1])===month&&Number(String(p.date).split("/")[2])===year);const byDate=new Map(plans.map(p=>[p.date,p]));return days.map(day=>{const p=byDate.get(day.date);const hasPlan=Boolean(p&&(String(p.city||"").trim()||String(p.dealer||"").trim()||String(p.taskPlan||"").trim()));return{engineerId:"demo-fe-1",date:day.date,day:day.day,location:p&&hasPlan?p.location||"":"",city:p&&hasPlan?p.city||"":"",dealer:p&&hasPlan?p.dealer||"":"",taskPlan:p&&hasPlan?p.taskPlan||"":"",hasPlan,approvalStatus:hasPlan?p.approvalStatus||"Yet to Approve":"",approvedBy:hasPlan&&p.approvalStatus==="Approved"?p.approvedByName||"":"",approvedDate:hasPlan&&p.approvalStatus==="Approved"?p.approvedDate||"":""};});}
+    function saveDemoMonthlyTourPlan(db,payload){
+      const month=Number(payload.month),year=Number(payload.year),rows=Array.isArray(payload.rows)?payload.rows:[];
+      if(rows.length!==new Date(year,month,0).getDate())throw new Error("Submit every date in the selected month, including blank dates.");
+      db.monthlyTourPlans=Array.isArray(db.monthlyTourPlans)?db.monthlyTourPlans:[];
+      rows.forEach(input=>{
+        input=input||{};
+        const clean={location:String(input.location||"").trim().toUpperCase(),city:String(input.city||"").trim(),dealer:String(input.dealer||"").trim(),taskPlan:String(input.taskPlan||"").trim()};
+        if(clean.location&&!["LOCAL","OUTSTATION"].includes(clean.location))throw new Error("Choose LOCAL or OUTSTATION for tour-plan location.");
+        if(clean.location){
+          const missing=[];if(!clean.city)missing.push("City");if(!clean.dealer)missing.push("Dealer");if(!clean.taskPlan)missing.push("Task Plan");
+          if(missing.length)throw new Error(String(input.date||"Tour-plan date")+": "+missing.join(", ")+" "+(missing.length===1?"is":"are")+" required when Location is "+clean.location+".");
+        }
+        const old=db.monthlyTourPlans.find(plan=>plan.engineerId==="demo-fe-1"&&plan.date===input.date);
+        const has=Boolean(clean.city||clean.dealer||clean.taskPlan);
+        db.monthlyTourPlans=db.monthlyTourPlans.filter(plan=>!(plan.engineerId==="demo-fe-1"&&plan.date===input.date));
+        if(!has)return;
+        const unchanged=old&&old.location===clean.location&&old.city===clean.city&&old.dealer===clean.dealer&&old.taskPlan===clean.taskPlan;
+        db.monthlyTourPlans.push({id:old?old.id:"demo-tour-"+Date.now().toString(36)+"-"+String(input.date||"").split("/").join(""),engineerId:"demo-fe-1",date:input.date,...clean,approvalStatus:unchanged?old.approvalStatus||"Yet to Approve":"Yet to Approve",approvedById:unchanged&&old.approvalStatus==="Approved"?old.approvedById||"":"",approvedByName:unchanged&&old.approvalStatus==="Approved"?old.approvedByName||"":"",approvedDate:unchanged&&old.approvalStatus==="Approved"?old.approvedDate||"":"",lastEditedAt:unchanged?old.lastEditedAt:todayDDMMYYYY()+" "+nowTime()});
+      });
+      setDemoDb(db);
+      return{savedCount:db.monthlyTourPlans.filter(plan=>plan.engineerId==="demo-fe-1"&&Number(String(plan.date).split("/")[1])===month&&Number(String(plan.date).split("/")[2])===year).length,rows:demoMonthlyTourPlanRows(db,year,month)};
+    }
+    function demoRequest(action,payload){return new Promise((resolve,reject)=>setTimeout(()=>{try{
+      if(action==="login"){if(String(payload.username||"").trim().toLowerCase()!=="engineer"||payload.password!=="FSTdemo123!")throw new Error("User name or password is incorrect.");resolve({token:"demo-fe-session",user:{id:"demo-fe-1",username:"engineer",fullName:"Aarav Kulkarni",role:"Field Engineer",accountRole:"Field Engineer",baseLocation:"Mumbai"}});return;}
+      if(action==="logout"){resolve({ok:true});return;}
+      const db=getDemoDb();
+      if(action==="getEngineerDaySession"){const date=payload.date||todayDDMMYYYY();const changed=demoCloseOverdueSessions(db);const session=demoSessionForDate(db,date);if(changed)setDemoDb(db);resolve({session});return;}
+      if(action==="getFieldEngineerDailyOverview"){
+        const date=todayDDMMYYYY(),profile=demoLoginProfile(),changed=demoCloseOverdueSessions(db);
+        const attendanceRecord=db.records.find(r=>r.type==="Attendance"&&r.date===date&&(!r.engineerId||r.engineerId===profile.id));
+        const attendance=attendanceRecord&&attendanceRecord.data||{};
+        const punches=(db.punches||[]).filter(p=>p.date===date&&(!p.engineerId||p.engineerId===profile.id)&&(!p.engineerName||p.engineerName===profile.fullName)).sort((a,b)=>String(b.punchedAt||"").localeCompare(String(a.punchedAt||"")));
+        const latest=punches[0]||null,locations=Array.isArray(attendance.locations)?attendance.locations.map(x=>String(x||"").trim()).filter(Boolean):[];
+        const overview={date,name:profile.fullName,baseLocation:profile.baseLocation,attendance:attendanceRecord?{attendanceStatus:String(attendance.attendanceStatus||""),locations,dealerName:String(attendance.dealerName||""),dealerCity:String(attendance.dealerCity||""),lastEditedAt:String(attendanceRecord.lastEditedAt||"")}:null,workSession:demoSessionForDate(db,date),dealerPunchCount:punches.length,latestDealerPunch:latest?{time:demoFieldEngineerOverviewClockTime(latest.punchedAt),dealerName:String(latest.dealerName||""),dealerCity:String(latest.dealerCity||"")}:null};
+        if(changed)setDemoDb(db);resolve({overview});return;
+      }
+      if(action==="startEngineerDaySession"){demoCloseOverdueSessions(db);const date=todayDDMMYYYY();let session=db.sessions.find(x=>x.date===date);if(session&&session.logoutEpochMs)throw new Error("This day’s login session is already closed. You can log in again tomorrow.");if(!session){const epoch=Date.now();session={id:"demo-session-"+Date.now().toString(36),engineerId:"demo-fe-1",date,loginEpochMs:epoch,logoutEpochMs:0,loginAt:demoSessionStamp(epoch),logoutAt:"",autoClosed:false,lastEditedAt:demoSessionStamp(epoch)};db.sessions.push(session);}demoSyncTaskSessionTimes(db,session);setDemoDb(db);resolve({session:demoSessionSummary(session,date)});return;}
+      if(action==="endEngineerDaySession"){demoCloseOverdueSessions(db);const date=todayDDMMYYYY();const session=db.sessions.find(x=>x.date===date);if(!session)throw new Error("Tap LOGIN to start today’s work session first.");if(!session.logoutEpochMs){const epoch=Date.now();session.logoutEpochMs=epoch;session.logoutAt=demoSessionStamp(epoch);session.autoClosed=false;session.lastEditedAt=demoSessionStamp(epoch);demoSyncTaskSessionTimes(db,session);setDemoDb(db);}resolve({session:demoSessionSummary(session,date)});return;}
+      if(action==="getEngineerMonthlyTourPlan"){resolve({report:{rows:demoMonthlyTourPlanRows(db,Number(payload.year),Number(payload.month))}});return;}
+      if(action==="saveEngineerMonthlyTourPlan"){const result=saveDemoMonthlyTourPlan(db,payload);resolve(result);return;}
+      if(action==="getEngineerExpenseApprovalReport"){ resolve({report:demoExpenseApprovalReport(db,Number(payload.year),Number(payload.month))});return;}
+      if(action==="getDailyRecord"){const record=db.records.find(x=>x.type===payload.type&&x.date===payload.date);if(!record){resolve({record:null});return;}const copy=clone(record);if(payload.type==="DailyTasks"){const times=demoSessionForDate(db,payload.date);copy.data.loginTime=times.loginTime;copy.data.logoutTime=times.logoutTime;}resolve({record:copy});return;}
+      if(action==="listEngineerRecords"){const from=dateKey(payload.from),to=dateKey(payload.to);if(payload.type==="DealerPunch"){resolve({records:db.punches.filter(x=>dateKey(x.date)>=from&&dateKey(x.date)<=to).sort((a,b)=>(dateKey(b.date)+b.punchedAt).localeCompare(dateKey(a.date)+a.punchedAt))});return;}let rows=db.records.filter(x=>x.type===payload.type&&dateKey(x.date)>=from&&dateKey(x.date)<=to).sort((a,b)=>dateKey(b.date).localeCompare(dateKey(a.date)));if(payload.type==="DailyTasks")rows=rows.map(r=>{const times=demoSessionForDate(db,r.date);return{...r,data:{...r.data,loginTime:times.loginTime,logoutTime:times.logoutTime},location:db.records.find(a=>a.type==="Attendance"&&a.date===r.date)?.data?.locations||[]};});if(payload.type==="Attendance")rows=rows.map(r=>{const times=demoSessionForDate(db,r.date);return{...r,loginTime:times.loginTime,logoutTime:times.logoutTime};});resolve({records:clone(rows)});return;}
+      if(action==="saveDailyRecord"){
+        const type=payload.type,date=payload.date;let data=clone(payload.data||{});
+        if(type==="Attendance"){
+          data.dealerName=String(data.dealerName||"").trim();data.dealerCity=String(data.dealerCity||"").trim();data.comments=String(data.comments||"").trim();
+          if(!data.dealerName)throw new Error("Dealer Name is required.");
+          if(!data.dealerCity)throw new Error("Dealer City is required.");
+          if(!data.comments)throw new Error("Comments are required.");
+        }
+        if(type==="DailyTasks"){
+          data.taskComments=String(data.taskComments||"").trim();
+          if(!data.taskComments)throw new Error("Task Comment is required.");
+          const times=demoSessionForDate(db,date);data.loginTime=times.loginTime;data.logoutTime=times.logoutTime;
+        }
+        if(type==="DailyExpenses"){
+          const tasks=db.records.find(x=>x.type==="DailyTasks"&&x.date===date);if(!tasks)throw new Error("Please enter Tasks to proceed further");
+          const att=db.records.find(x=>x.type==="Attendance"&&x.date===date);if(!att)throw new Error("Please update Attendance first to set the expense location.");
+          data.dayStartCity=String(data.dayStartCity||"").trim();data.travelComments=String(data.travelComments||"").trim();
+          if(!data.dayStartCity)throw new Error("Day Start City is required.");
+          if(!data.travelComments)throw new Error("Travel Comments are required.");
+          data.location=att.data.locations||[];
+          if(data.outstationFoodExpense===""||data.outstationFoodExpense==null)data.outstationFoodExpense=data.location.some(value=>["Outstation","Travelling"].includes(value))?500:0;
+          if(Number(data.localTravelExpense)>300)throw new Error("Local Travel Expense cannot exceed Rs 300.");
+          if(Number(data.lodgingExpenses)>1300)throw new Error("Lodging Expenses cannot exceed Rs 1300.");
+          if(Number(data.outstationLocalTravel)>300)throw new Error("Outstation local travel cannot exceed Rs 300.");
+          if(Number(data.outstationFoodExpense)>500)throw new Error("Outstation food expenses cannot exceed Rs 500.");
+          if(Number(data.outstationFoodExpense)<0)throw new Error("Expense amounts cannot be negative.");
+        }
+        const existing=db.records.find(x=>x.type===type&&x.date===date);const stamp=date+" "+nowTime();
+        const record={id:existing?existing.id:"demo-record-"+Date.now().toString(36),type,date,createdAt:existing?existing.createdAt:stamp,lastEditedAt:stamp,data};
+        if(type==="DailyTasks"){const att=db.records.find(x=>x.type==="Attendance"&&x.date===date);record.location=att?.data?.locations||[];}
+        const index=db.records.findIndex(x=>x.type===type&&x.date===date);if(index>=0)db.records[index]=record;else db.records.push(record);
+        if(type==="DailyExpenses"||type==="Attendance")db.expenseApprovals=(db.expenseApprovals||[]).filter(x=>x.date!==date);
+        setDemoDb(db);resolve({record});return;
+      }
+      if(action==="createDealerPunch"){const punch={id:"demo-punch-"+Date.now().toString(36),date:todayDDMMYYYY(),engineerName:"Aarav Kulkarni",punchedAt:todayDDMMYYYY()+" "+nowTime(),dealerName:payload.dealerName,dealerCity:payload.dealerCity,latitude:Number(payload.latitude),longitude:Number(payload.longitude),address:"Mumbai, Maharashtra (demo reverse geocode)"};db.punches.push(punch);setDemoDb(db);resolve({punch});return;}
+      if(action==="getAssignedTasks"){resolve({tasks:clone(db.assignedTasks)});return;}
+      if(action==="saveAssignedTaskResponse"){const task=db.assignedTasks.find(x=>x.id===payload.id);if(!task)throw new Error("This assigned task could not be found.");task.status=payload.status;task.response=payload.response;task.responseAt=todayDDMMYYYY()+" "+nowTime();setDemoDb(db);resolve({task:clone(task)});return;}
+      if(action==="getTaskCount"){const records=db.records.filter(x=>x.type==="DailyTasks"&&Number(x.date.split("/")[2])===Number(payload.year)&&Number(x.date.split("/")[1])===Number(payload.month));const counts={};TASK_CATALOG.filter(x=>x.key!=="others").forEach(c=>{counts[c.key]=0;records.forEach(r=>{const a=r.data.activities?.[c.key];if(!a)return;counts[c.key]+=c.kind==="repeat"?meaningfulEntryCount(a.entries):(Number(a[c.countField])||0);});});resolve({rows:TASK_CATALOG.filter(x=>x.key!=="others").map(c=>({task:c.label,count:counts[c.key]||0}))});return;}
+      if(action==="uploadExpenseAttachment"){const file={driveFileId:"demo-file-"+Date.now().toString(36),fileName:"Aarav_Kulkarni_"+String(payload.date||todayDDMMYYYY()).replace(/\//g,"_")+"_"+payload.category+"_demo."+((payload.mimeType||"").includes("pdf")?"pdf":"jpg"),mimeType:payload.mimeType||"image/jpeg",sizeBytes:payload.sizeBytes||0,category:payload.category};resolve({attachment:file});return;}
+      throw new Error("That action is not available in the preview.");
+    }catch(error){reject(error)}},100));}
+    function nowTime(){const p=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());return p;}
+
+    async function loginSubmit(event){event.preventDefault();setError("");const username=document.getElementById("loginUsername").value.trim();const password=document.getElementById("loginPassword").value;if(!username||!password){setError("Enter your user name and password.");return;}const button=document.getElementById("loginButton");setBusy(button,true,'<span>Sign in</span>'+icon("arrow"));try{const result=await apiRequest("login",{role:"Field Engineer",username,password});state.token=result.token;state.user=result.user;state.workSession=null;state.workSessionLoading=true;state.fieldEngineerOverview=null;state.fieldEngineerOverviewLoading=false;state.fieldEngineerOverviewError="";state.fieldEngineerOverviewRefreshPending=false;safeSessionSet(JSON.stringify({token:state.token,user:state.user}));document.getElementById("loginView").classList.add("hidden");document.getElementById("appView").classList.remove("hidden");document.getElementById("userNameTop").textContent=state.user.fullName;document.getElementById("userAvatar").textContent=initials(state.user.fullName);state.attendanceRecord=null;state.expenseRecord=null;state.assignedTasks=[];state.monthlyExpenseTotal=0;state.monthlyExpenseRecordCount=0;state.monthlyExpenseMonthKey="";state.monthlyExpenseError="";monthlyExpenseRequestId++;navigate("home");}catch(error){setError(error.message||"Unable to sign in. Check your details.");}finally{button.disabled=false;button.innerHTML='<span>Sign in</span>'+icon("arrow");}}
+    async function resumeSession(){const saved=safeSessionGet();if(!saved)return;try{const session=JSON.parse(saved);state.token=session.token;state.user=session.user;if(CONFIG.API_URL){state.user=await apiRequest("me",{});}if(!state.user||state.user.accountRole&&state.user.accountRole!=="Field Engineer")throw new Error("Not a Field Engineer account");state.workSession=null;state.workSessionLoading=true;document.getElementById("loginView").classList.add("hidden");document.getElementById("appView").classList.remove("hidden");document.getElementById("userNameTop").textContent=state.user.fullName;document.getElementById("userAvatar").textContent=initials(state.user.fullName);navigate("home");}catch(_){safeSessionSet(null);}}
+    async function logout(){if(state.page==="monthlyTourPlan"&&state.tourPlanDirty)showToast("Unsaved monthly tour-plan changes were discarded.","error");try{if(CONFIG.API_URL&&state.token)await apiRequest("logout",{});}catch(_){}stopWorkSessionTicker();monthlyExpenseRequestId++;state.monthlyExpenseTotal=0;state.monthlyExpenseRecordCount=0;state.monthlyExpenseMonthKey="";state.monthlyExpenseLoading=false;state.monthlyExpenseError="";state.token="";state.user=null;state.workSession=null;state.workSessionLoading=true;state.fieldEngineerOverview=null;state.fieldEngineerOverviewLoading=false;state.fieldEngineerOverviewError="";state.fieldEngineerOverviewRefreshPending=false;safeSessionSet(null);document.getElementById("appView").classList.add("hidden");document.getElementById("loginView").classList.remove("hidden");document.getElementById("loginPassword").value="";setError("");window.scrollTo(0,0);}
+
+    function CSSesc(value){return window.CSS&&CSS.escape?CSS.escape(String(value)):String(value).replace(/[^a-zA-Z0-9_-]/g,"\\$&");}
+    function bindEvents(){
+      document.getElementById("loginForm").addEventListener("submit",loginSubmit);
+      document.addEventListener("click",event=>{
+        const workSessionButton=event.target.closest("[data-work-session]");if(workSessionButton){handleWorkSessionAction(workSessionButton);return;}
+        if(event.target.closest("[data-refresh-field-overview]")){refreshFieldEngineerDailyOverview(false);return;}
+        const page=event.target.closest("[data-page]");if(page){navigate(page.dataset.page);return;}
+        if(event.target.closest("[data-home]")){navigate("home");return;}
+        if(event.target.closest("[data-logout]")){logout();return;}
+        const cap=event.target.closest("[data-capture-location]");if(cap){captureLocation();return;}
+        if(event.target.closest("[data-demo-location]")){state.punchDraft=readPunchForm();state.geo={latitude:19.076,longitude:72.8777,accuracy:25,demo:true};state.geoError="";render();return;}
+        const saveAssigned=event.target.closest("[data-save-assigned]");if(saveAssigned){saveAssignedTask(saveAssigned.dataset.saveAssigned);return;}
+        const removeFile=event.target.closest("[data-remove-file]");if(removeFile){state.expenseDraft={...(state.expenseDraft||{}),...(readExpenseForm()||{})};const key=removeFile.dataset.removeFile==="Travel"?"expenseTravelFiles":"expenseLodgingFiles";state[key].splice(Number(removeFile.dataset.fileIndex),1);render();return;}
+        const add=event.target.closest("[data-task-add]");if(add){state.taskDraft=collectDailyTaskForm();const config=TASK_CATALOG.find(x=>x.key===add.dataset.taskAdd);const cur=state.taskDraft.activities[config.key]||{entries:[]};cur.entries=cur.entries||[];cur.entries.push({});state.taskDraft.activities[config.key]=cur;render();return;}
+        const remove=event.target.closest("[data-task-remove]");if(remove){state.taskDraft=collectDailyTaskForm();const key=remove.dataset.taskRemove;const index=Number(remove.dataset.entryIndex);const list=state.taskDraft.activities[key]?.entries||[];list.splice(index,1);if(!list.length)state.taskDraft.activities[key]={selected:true,entries:[]};render();return;}
+        if(event.target.closest("[data-run-approval-report]")){const year=document.getElementById("approvalYear"),month=document.getElementById("approvalMonth");if(year)state.approvalYear=Number(year.value);if(month)state.approvalMonth=Number(month.value);state.approvalRows=[];state.approvalTotal=0;state.approvalLoading=true;render();loadExpenseApprovalReport();return;}
+        const apply=event.target.closest("[data-apply-range]");if(apply){applyRange(apply.dataset.applyRange);return;}
+        const punchDate=event.target.closest("[data-punch-date]");if(punchDate){openPunchDate(punchDate.dataset.punchDate);return;}
+        const detail=event.target.closest("[data-record-id]");if(detail){const record=state.rangeRecords.find(x=>x.id===detail.dataset.recordId);if(record)openRecordDetails(record,detail.dataset.recordType);return;}
+        const close=event.target.closest("[data-close-modal]");if(close){closeModal();return;}
+        const backdrop=event.target.closest("[data-modal-backdrop]");if(backdrop&&event.target===backdrop){closeModal();return;}
+        const show=event.target.closest("[data-show-password]");if(show){const input=document.getElementById(show.dataset.showPassword);if(input){const reveal=input.type==="password";input.type=reveal?"text":"password";show.setAttribute("aria-label",reveal?"Hide password":"Show password");show.innerHTML='<svg class="icon"><use href="#i-'+(reveal?"eye-off":"eye")+'"></use></svg>';}return;}
+      });
+      document.addEventListener("input",event=>{if(event.target&&event.target.dataset&&event.target.dataset.tourPlanField)updateMonthlyTourPlanField(event.target);});
+      document.addEventListener("change",event=>{
+        if(event.target.id==="tourPlanYear"||event.target.id==="tourPlanMonth"){const nextYear=Number(document.getElementById("tourPlanYear").value);const nextMonth=Number(document.getElementById("tourPlanMonth").value);if(state.tourPlanDirty)showToast("Unsaved tour-plan edits for the previous month were discarded.","error");state.tourPlanYear=nextYear;state.tourPlanMonth=nextMonth;state.tourPlanRows=[];state.tourPlanOriginal=[];state.tourPlanDirty=false;state.tourPlanLoading=true;loadMonthlyTourPlan();return;}
+        const tourField=event.target&&event.target.dataset&&event.target.dataset.tourPlanField;if(tourField)updateMonthlyTourPlanField(event.target);
+        const date=event.target.closest("[data-date-picker]");if(date){updateDateDisplay(date.id);const selected=isoToDisplay(date.value);if(date.id==="attendanceDate"){state.attendanceDate=selected;state.attendanceRecord=null;state.recordLoading=true;state.recordLoadingType="Attendance";state.recordLoadingDate=selected;render();loadDailyRecord("Attendance",selected);}if(date.id==="tasksDate"){state.taskDate=selected;state.taskRecord=null;state.taskDraft=defaultTaskDraft();state.taskSession=null;state.taskSessionLoading=true;state.recordLoading=true;state.recordLoadingType="DailyTasks";state.recordLoadingDate=selected;render();loadDailyRecord("DailyTasks",selected);}if(date.id==="expensesDate"){state.expenseDate=selected;state.expenseRecord=null;state.expenseDraft=null;state.expenseAttendance=null;state.expenseTasks=null;state.expenseLoading=true;state.expenseTravelFiles=[];state.expenseLodgingFiles=[];render();loadExpenseContext(selected);}if(date.id==="rangeFrom"||date.id==="rangeTo"){state[date.id==="rangeFrom"?"rangeFrom":"rangeTo"]=selected;}return;}
+        const toggle=event.target.closest("[data-task-toggle]");if(toggle){const detail=document.querySelector('[data-task-detail="'+CSSesc(toggle.dataset.taskToggle)+'"]');if(detail)detail.classList.toggle("hidden",!toggle.checked);if(toggle.checked){state.taskDraft=collectDailyTaskForm();state.taskDraft.activities[toggle.dataset.taskToggle]=state.taskDraft.activities[toggle.dataset.taskToggle]||{entries:[]};}else{state.taskDraft=collectDailyTaskForm();}return;}
+        if(event.target.id==="countYear"){state.countYear=Number(event.target.value);state.rangeLoading=true;render();loadTaskCounts();return;}
+        if(event.target.id==="countMonth"){state.countMonth=Number(event.target.value);state.rangeLoading=true;render();loadTaskCounts();return;}
+        if(event.target.id==="approvalYear"){state.approvalYear=Number(event.target.value);return;}
+        if(event.target.id==="approvalMonth"){state.approvalMonth=Number(event.target.value);return;}
+        const attachment=event.target.closest("[data-attachment-input]");if(attachment){handleFileInput(attachment);return;}
+      });
+      document.addEventListener("submit",event=>{
+        if(event.target.id==="attendanceForm"){saveAttendance(event);return;}
+        if(event.target.id==="punchForm"){handlePunchSubmit(event);return;}
+        if(event.target.id==="dailyTasksForm"){saveDailyTasks(event);return;}
+        if(event.target.id==="expenseForm"){saveExpenses(event);return;}
+        if(event.target.id==="monthlyTourPlanForm"){saveMonthlyTourPlan(event);return;}
+      });
+      window.addEventListener("focus",()=>{if(state.token&&state.page==="home"){refreshFieldEngineerDailyOverview(true);loadMonthlyExpenseTotal(true);}});
+      document.addEventListener("visibilitychange",()=>{if(!document.hidden&&state.token&&state.page==="home"){refreshFieldEngineerDailyOverview(true);loadMonthlyExpenseTotal(true);}});
+    }
+
+    function demoLoginProfile(){return{ id:"demo-fe-1",username:"engineer",fullName:"Aarav Kulkarni",role:"Field Engineer",accountRole:"Field Engineer",baseLocation:"Mumbai"};}
+
+    async function boot(){
+      if(CONFIG.API_URL)document.getElementById("demoLoginNote").classList.add("hidden");
+      bindEvents();
+      const p=todayDDMMYYYY().split("/");state.countYear=Math.min(2029,Math.max(2026,Number(p[2])));state.countMonth=Number(p[1]);
+      await resumeSession();
+    }
+    boot();
+  </script>
+</body>
+</html>
