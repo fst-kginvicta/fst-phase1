@@ -1691,10 +1691,13 @@ function xmlEscape(value){return String(value==null?"":value).replace(/&/g,"&amp
     async function handleUserSave(event) {
       event.preventDefault();
       const form = event.currentTarget;
-      const result = validateUserForm(form);
+      let result;
+      try { result = validateUserForm(form); }
+      catch (error) { showToast(error.message || "Could not validate the user details.", "error"); return; }
       if (!result.valid) {
         const firstInvalid = form.querySelector(".invalid");
         if (firstInvalid) firstInvalid.focus();
+        showToast("Please correct the highlighted fields, then try again.", "error");
         return;
       }
       const existing = form.dataset.editId ? state.users.find(user => user.id === form.dataset.editId) : null;
@@ -1768,6 +1771,14 @@ function xmlEscape(value){return String(value==null?"":value).replace(/&/g,"&amp
     }
 
     document.addEventListener("click", event => {
+      const saveUserButton = event.target.closest("#saveUserButton");
+      if (saveUserButton) {
+        event.preventDefault();
+        const userForm = document.getElementById("userForm");
+        if (!userForm) { showToast("The user form is not available. Please reopen it.", "error"); return; }
+        handleUserSave({ preventDefault: function () {}, currentTarget: userForm });
+        return;
+      }
       const viewButton = event.target.closest("[data-view]");
       if (viewButton) { setView(viewButton.dataset.view); return; }
       if (event.target.closest("[data-run-admin-report]")) { runAdminReport(); return; }
