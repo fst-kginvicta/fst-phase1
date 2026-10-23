@@ -801,7 +801,7 @@
         const timeoutId = window.setTimeout(() => {
           pendingApiCalls.delete(requestId);
           reject(new Error("The server took too long to respond. Check your connection and try again."));
-        }, 30000);
+        }, 120000);
         pendingApiCalls.set(requestId, { resolve, reject, timeoutId });
         const form = document.createElement("form");
         form.method = "POST";
@@ -825,7 +825,7 @@
       });
     }
     window.addEventListener("message", event => {
-      if (event.source !== apiFrame.contentWindow) return;
+      if (!/^https:\/\/(?:[a-z0-9-]+-)?script\.googleusercontent\.com$/i.test(event.origin)) return;
       const message = event.data;
       if (!message || message.channel !== "FST_API" || !message.requestId) return;
       const pending = pendingApiCalls.get(message.requestId);
